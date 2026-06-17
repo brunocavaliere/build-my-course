@@ -1,24 +1,30 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
 
 import { env } from '@/env';
+import { brand } from '@/lib/brand';
 import { AppProviders } from '@/providers';
 import '@/styles/globals.css';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
-
 export const metadata: Metadata = {
-  title: env.NEXT_PUBLIC_APP_NAME,
-  description: 'Boilerplate moderno para projetos SaaS com Next.js App Router.',
+  title: {
+    default: brand.name,
+    template: `%s | ${brand.name}`,
+  },
+  description: brand.description,
   metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
+  openGraph: {
+    title: brand.name,
+    description: brand.description,
+    siteName: brand.name,
+    type: 'website',
+    url: env.NEXT_PUBLIC_APP_URL,
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: brand.name,
+    description: brand.description,
+  },
 };
 
 export default function RootLayout({
@@ -27,11 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="pt-BR"
-      suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang="pt-BR" suppressHydrationWarning className="h-full antialiased">
       <body className="min-h-full">
         <AppProviders>{children}</AppProviders>
       </body>

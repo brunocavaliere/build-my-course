@@ -1,187 +1,147 @@
-import { ArrowUpRight, BookOpenText, Plus } from 'lucide-react';
+import Link from 'next/link';
 
-import { ExampleCard, ExampleForm } from '@/components/example';
-import {
-  AppHeader,
-  AppShell,
-  AppSidebar,
-  EmptyState,
-  ErrorState,
-  LoadingState,
-  PageContainer,
-  PageHeader,
-} from '@/components/shared';
+import { ArrowRight, BookOpenText, CheckCircle2 } from 'lucide-react';
+
+import { auth, isAuthReady } from '@/auth';
+import { SignInButton } from '@/components/shared/auth-buttons';
+import { PageContainer } from '@/components/shared';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { env } from '@/env';
-import { DEFAULT_ERROR_MESSAGES } from '@/lib/errors';
+import { brand } from '@/lib/brand';
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+
   return (
-    <AppShell
-      sidebar={<AppSidebar />}
-      header={
-        <AppHeader
-          actions={
-            <Button asChild variant="outline" className="rounded-full">
-              <a href="https://nextjs.org/docs/app" target="_blank" rel="noreferrer">
-                Docs
-                <ArrowUpRight className="size-4" />
-              </a>
-            </Button>
-          }
-        />
-      }
-    >
-      <PageContainer>
-        <PageHeader
-          title="Dashboard"
-          description="Uma base visual reutilizavel para produtos SaaS modernos, com shell de aplicacao, layout consistente e componentes compartilhados preparados para crescer."
-          actions={
-            <Button className="rounded-full">
-              <Plus className="size-4" />
-              New workspace
-            </Button>
-          }
-        />
-
-        <section id="dashboard" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {[
-            {
-              label: 'Projects',
-              value: '12',
-              hint: 'Espaços ativos na base de exemplo',
-            },
-            {
-              label: 'Query Cache',
-              value: 'Warm',
-              hint: 'React Query pronto para server state',
-            },
-            {
-              label: 'Theme',
-              value: 'Adaptive',
-              hint: 'Dark e light mode com tokens semânticos',
-            },
-            {
-              label: 'Testing',
-              value: 'Ready',
-              hint: 'Vitest e Testing Library configurados',
-            },
-          ].map((item) => (
-            <Card
-              key={item.label}
-              className="bg-card/80 border-border/70 rounded-3xl backdrop-blur"
-            >
-              <CardHeader className="gap-2">
-                <CardDescription>{item.label}</CardDescription>
-                <CardTitle className="text-2xl">{item.value}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground text-sm leading-6">{item.hint}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </section>
-
-        <section className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)]">
-          <ExampleCard />
-
-          <div className="space-y-6">
-            <ExampleForm />
-            <LoadingState
-              title="Sincronizando visao geral da equipe"
-              description="Use este estado enquanto widgets, listas ou analytics ainda estao em andamento."
-            />
+    <main className="min-h-screen">
+      <PageContainer className="mx-auto w-full max-w-6xl gap-16 py-8 sm:py-10">
+        <header className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-foreground text-background flex size-10 items-center justify-center rounded-2xl">
+              <BookOpenText className="size-4" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">{brand.name}</p>
+              <p className="text-muted-foreground text-xs">AI course builder</p>
+            </div>
           </div>
-        </section>
 
-        <section
-          id="patterns"
-          className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.9fr)]"
-        >
-          <Card className="bg-card/80 border-border/70 rounded-3xl backdrop-blur">
-            <CardHeader>
-              <CardTitle>Shared components prontos</CardTitle>
-              <CardDescription>
-                App Shell, Header, Sidebar, Empty State e Loading State ficam em `shared/` porque
-                servem para varios dominios sem depender de regra de negocio.
+          {session?.user ? (
+            <Button asChild variant="outline" className="rounded-full">
+              <Link href="/app">Open dashboard</Link>
+            </Button>
+          ) : (
+            <Button asChild variant="outline" className="rounded-full">
+              <Link href="/login">Sign in</Link>
+            </Button>
+          )}
+        </header>
+
+        <section className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] lg:items-center">
+          <div className="space-y-8">
+            <div className="space-y-5">
+              <p className="text-muted-foreground text-xs font-medium tracking-[0.24em] uppercase">
+                Personalized learning paths
+              </p>
+              <div className="space-y-4">
+                <h1 className="max-w-4xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">
+                  {brand.name}
+                </h1>
+                <p className="max-w-2xl text-lg leading-8 text-balance text-neutral-600 dark:text-neutral-300">
+                  {brand.tagline}
+                </p>
+                <p className="max-w-2xl text-base leading-7 text-neutral-600 dark:text-neutral-400">
+                  {brand.description}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              {session?.user ? (
+                <Button asChild className="rounded-full">
+                  <Link href="/app">
+                    Open dashboard
+                    <ArrowRight className="size-4" />
+                  </Link>
+                </Button>
+              ) : isAuthReady ? (
+                <SignInButton className="rounded-full" label="Sign in with GitHub" />
+              ) : (
+                <Button asChild className="rounded-full">
+                  <Link href="/login">
+                    Open login
+                    <ArrowRight className="size-4" />
+                  </Link>
+                </Button>
+              )}
+              <Button asChild variant="outline" className="rounded-full">
+                <Link href="/app/courses/new">See course setup</Link>
+              </Button>
+            </div>
+          </div>
+
+          <Card className="border-border/70 rounded-[2rem] shadow-none">
+            <CardHeader className="space-y-4">
+              <CardTitle className="text-2xl">Build course from goal</CardTitle>
+              <CardDescription className="text-sm leading-6">
+                Example goal: &quot;Quero aprender React para conseguir uma vaga frontend&quot;
               </CardDescription>
             </CardHeader>
-            <CardContent className="text-muted-foreground grid gap-3 text-sm">
-              <p>Use `ui/` para primitives e componentes do shadcn/ui.</p>
-              <p>Use `shared/` para estrutura visual reaproveitavel entre telas.</p>
-              <p>Use `src/components/[module-name]/` para componentes e logica de dominio.</p>
-              <p>Use `hooks/` e `schemas.ts` do modulo para formularios tipados e reutilizaveis.</p>
+            <CardContent className="space-y-4">
+              {[
+                'Structured modules with lessons',
+                'Exercises and quizzes for each stage',
+                'Curated resources matched to your objective',
+              ].map((item) => (
+                <div key={item} className="bg-muted/50 flex items-center gap-3 rounded-2xl p-4">
+                  <CheckCircle2 className="size-4 shrink-0" />
+                  <p className="text-sm leading-6">{item}</p>
+                </div>
+              ))}
             </CardContent>
           </Card>
+        </section>
 
-          <div className="space-y-6">
-            <Card
-              id="settings"
-              className="from-card via-card to-muted/40 border-border/70 rounded-3xl bg-linear-to-br backdrop-blur"
-            >
-              <CardHeader>
-                <CardTitle>Base preparada para futuras evolucoes</CardTitle>
-                <CardDescription>
-                  A shell atual foi pensada para receber autenticacao, navegacao real, tabelas,
-                  settings e recursos colaborativos sem refazer a estrutura visual da aplicacao.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-3 sm:flex-row">
-                <Button asChild variant="outline" className="rounded-full">
-                  <a href="https://ui.shadcn.com/docs" target="_blank" rel="noreferrer">
-                    Explorar shadcn/ui
-                  </a>
-                </Button>
-                <Button asChild variant="ghost" className="rounded-full">
-                  <a href="https://tanstack.com/query/latest" target="_blank" rel="noreferrer">
-                    Explorar React Query
-                  </a>
-                </Button>
-              </CardContent>
-            </Card>
+        <section className="space-y-6">
+          <div className="space-y-2">
+            <p className="text-muted-foreground text-xs font-medium tracking-[0.18em] uppercase">
+              How it works
+            </p>
+            <h2 className="text-3xl font-semibold tracking-tight">From goal to guided course</h2>
+          </div>
 
-            <Card className="bg-card/80 border-border/70 rounded-3xl backdrop-blur">
-              <CardHeader>
-                <CardTitle>Supabase opcional e preparado</CardTitle>
-                <CardDescription>
-                  Importe o client de browser ou server a partir de `@/lib/supabase` quando o
-                  projeto realmente precisar dessa integracao.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-muted-foreground space-y-3 text-sm">
-                <p>Status atual: {env.isSupabaseEnabled ? 'configurado' : 'nao configurado'}.</p>
-                <p>Browser: `createSupabaseBrowserClient()` para Client Components e hooks.</p>
-                <p>
-                  Server: `createSupabaseServerClient()` para Server Components, actions e route
-                  handlers.
-                </p>
-              </CardContent>
-            </Card>
-
-            <EmptyState
-              title="Nenhum recurso conectado"
-              description="Use este estado vazio como base para listas, tabelas ou dashboards enquanto o dominio ainda nao possui dados reais."
-              icon={<BookOpenText className="size-5" />}
-              action={
-                <Button variant="outline" className="rounded-full">
-                  Criar primeiro recurso
-                </Button>
-              }
-            />
-
-            <ErrorState
-              title="Falha controlada de exemplo"
-              description={DEFAULT_ERROR_MESSAGES.queryDescription}
-              action={
-                <Button variant="outline" className="rounded-full">
-                  Tentar novamente
-                </Button>
-              }
-            />
+          <div className="grid gap-4 md:grid-cols-3">
+            {[
+              {
+                step: 'Step 1',
+                title: 'Describe what you want to learn',
+              },
+              {
+                step: 'Step 2',
+                title: 'Get a personalized learning path',
+              },
+              {
+                step: 'Step 3',
+                title: 'Learn at your own pace',
+              },
+            ].map((item) => (
+              <Card key={item.step} className="border-border/70 rounded-3xl shadow-none">
+                <CardHeader className="space-y-3">
+                  <CardDescription className="text-xs font-medium tracking-[0.18em] uppercase">
+                    {item.step}
+                  </CardDescription>
+                  <CardTitle className="text-xl leading-7">{item.title}</CardTitle>
+                </CardHeader>
+              </Card>
+            ))}
           </div>
         </section>
+
+        <footer className="border-border/70 flex flex-col gap-3 border-t pt-6 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-muted-foreground">{brand.name}</p>
+          <p className="text-muted-foreground">{brand.tagline}</p>
+        </footer>
       </PageContainer>
-    </AppShell>
+    </main>
   );
 }

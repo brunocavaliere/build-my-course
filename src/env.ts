@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-export const serverEnvSchema = z.object({});
+import { brand } from '@/lib/brand';
 
-const optionalClientEnvString = z.preprocess((value) => {
+const optionalEnvString = z.preprocess((value) => {
   if (typeof value !== 'string') {
     return undefined;
   }
@@ -12,47 +12,56 @@ const optionalClientEnvString = z.preprocess((value) => {
   return trimmedValue.length > 0 ? trimmedValue : undefined;
 }, z.string().min(1).optional());
 
-const optionalClientEnvUrl = z.preprocess((value) => {
-  if (typeof value !== 'string') {
-    return undefined;
-  }
+const optionalEnvUrl = (message: string) =>
+  z.preprocess((value) => {
+    if (typeof value !== 'string') {
+      return undefined;
+    }
 
-  const trimmedValue = value.trim();
+    const trimmedValue = value.trim();
 
-  return trimmedValue.length > 0 ? trimmedValue : undefined;
-}, z.url('NEXT_PUBLIC_SUPABASE_URL deve ser uma URL valida.').optional());
+    return trimmedValue.length > 0 ? trimmedValue : undefined;
+  }, z.url(message).optional());
 
-export const clientEnvSchema = z
+export const serverEnvSchema = z
   .object({
-    NEXT_PUBLIC_APP_NAME: z
-      .string()
-      .min(1, 'NEXT_PUBLIC_APP_NAME e obrigatoria e nao pode ser vazia.'),
-    NEXT_PUBLIC_APP_URL: z.url('NEXT_PUBLIC_APP_URL deve ser uma URL valida.'),
-    NEXT_PUBLIC_SUPABASE_URL: optionalClientEnvUrl,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: optionalClientEnvString,
+    DATABASE_URL: optionalEnvString,
+    DATABASE_DIRECT_URL: optionalEnvString,
+    AUTH_SECRET: optionalEnvString,
+    AUTH_URL: optionalEnvUrl('AUTH_URL deve ser uma URL valida.'),
+    AUTH_GITHUB_ID: optionalEnvString,
+    AUTH_GITHUB_SECRET: optionalEnvString,
+    OPENAI_API_KEY: optionalEnvString,
   })
   .superRefine((value, context) => {
-    const hasSupabaseUrl = Boolean(value.NEXT_PUBLIC_SUPABASE_URL);
-    const hasSupabaseAnonKey = Boolean(value.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    const hasGitHubId = Boolean(value.AUTH_GITHUB_ID);
+    const hasGitHubSecret = Boolean(value.AUTH_GITHUB_SECRET);
 
-    if (hasSupabaseUrl === hasSupabaseAnonKey) {
+    if (hasGitHubId === hasGitHubSecret) {
       return;
     }
 
     context.addIssue({
       code: z.ZodIssueCode.custom,
       message:
-        'NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY devem ser definidas juntas quando o projeto usar Supabase.',
-      path: ['NEXT_PUBLIC_SUPABASE_URL'],
+        'AUTH_GITHUB_ID e AUTH_GITHUB_SECRET devem ser definidas juntas quando o projeto usar GitHub OAuth.',
+      path: ['AUTH_GITHUB_ID'],
     });
 
     context.addIssue({
       code: z.ZodIssueCode.custom,
       message:
-        'NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY devem ser definidas juntas quando o projeto usar Supabase.',
-      path: ['NEXT_PUBLIC_SUPABASE_ANON_KEY'],
+        'AUTH_GITHUB_ID e AUTH_GITHUB_SECRET devem ser definidas juntas quando o projeto usar GitHub OAuth.',
+      path: ['AUTH_GITHUB_SECRET'],
     });
   });
+
+export const clientEnvSchema = z.object({
+  NEXT_PUBLIC_APP_NAME: z
+    .string()
+    .min(1, 'NEXT_PUBLIC_APP_NAME e obrigatoria e nao pode ser vazia.'),
+  NEXT_PUBLIC_APP_URL: z.url('NEXT_PUBLIC_APP_URL deve ser uma URL valida.'),
+});
 
 function formatEnvErrors(envName: string, errors: z.ZodIssue[]) {
   const formattedErrors = errors
@@ -80,13 +89,19 @@ function parseEnv<TSchema extends z.ZodTypeAny>(
 }
 
 const clientRuntimeEnv = {
-  NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
-  NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
-  NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME ?? brand.name,
+  NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
 };
 
-const serverRuntimeEnv = {};
+const serverRuntimeEnv = {
+  DATABASE_URL: process.env.DATABASE_URL,
+  DATABASE_DIRECT_URL: process.env.DATABASE_DIRECT_URL,
+  AUTH_SECRET: process.env.AUTH_SECRET,
+  AUTH_URL: process.env.AUTH_URL,
+  AUTH_GITHUB_ID: process.env.AUTH_GITHUB_ID,
+  AUTH_GITHUB_SECRET: process.env.AUTH_GITHUB_SECRET,
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+};
 
 const clientEnv = parseEnv('client', clientEnvSchema, clientRuntimeEnv);
 const serverEnv =
@@ -99,7 +114,8 @@ export const env = {
   ...clientEnv,
   NODE_ENV: nodeEnv,
   isDevelopment: nodeEnv === 'development',
-  isSupabaseEnabled: Boolean(
-    clientEnv.NEXT_PUBLIC_SUPABASE_URL && clientEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  ),
+  isDatabaseConfigured: Boolean(serverEnv.DATABASE_URL),
+  isMigrationDatabaseConfigured: Boolean(serverEnv.DATABASE_DIRECT_URL || serverEnv.DATABASE_URL),
+  isGitHubAuthConfigured: Boolean(serverEnv.AUTH_GITHUB_ID && serverEnv.AUTH_GITHUB_SECRET),
+  isOpenAiConfigured: Boolean(serverEnv.OPENAI_API_KEY),
 } as const;

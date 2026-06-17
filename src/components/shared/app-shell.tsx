@@ -41,7 +41,7 @@ export function AppShell({ children, className, header, sidebar }: AppShellProps
       <div className={cn('flex min-h-screen min-w-0 flex-1 flex-col', sidebar && 'lg:pl-72')}>
         {header ? (
           <header className="border-border/70 bg-background/90 sticky top-0 z-30 shrink-0 border-b backdrop-blur">
-            <div className="flex min-h-16 items-center gap-3 px-4 sm:px-6 lg:px-8">
+            <div className="flex min-h-16 items-center gap-3 px-4 py-5 sm:px-6 lg:px-8">
               {sidebar ? (
                 <Button
                   type="button"

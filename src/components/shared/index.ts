@@ -6,5 +6,5 @@ export { ErrorState } from '@/components/shared/error-state';
 export { LoadingState } from '@/components/shared/loading-state';
 export { PageContainer } from '@/components/shared/page-container';
 export { PageHeader } from '@/components/shared/page-header';
-export { ProjectBadge } from '@/components/shared/project-badge';
+export { RoutePlaceholder } from '@/components/shared/route-placeholder';
 export { ThemeToggle } from '@/components/shared/theme-toggle';
