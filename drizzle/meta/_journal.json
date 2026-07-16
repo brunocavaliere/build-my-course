@@ -15,6 +15,27 @@
       "when": 1781370698032,
       "tag": "0001_course_domain",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784203200000,
+      "tag": "0002_lesson_practice_exercises",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1784206800000,
+      "tag": "0003_lesson_practice_exercise_options",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1784210400000,
+      "tag": "0004_lesson_practice_exercise_correct_option",
+      "breakpoints": true
     }
   ]
 }

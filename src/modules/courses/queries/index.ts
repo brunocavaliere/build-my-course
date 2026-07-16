@@ -1,7 +1,13 @@
 import { and, asc, eq } from 'drizzle-orm';
 
 import { db } from '@/db';
-import { courseLessons, courseModules, courses, userLessonProgress } from '@/db/schema';
+import {
+  courseLessons,
+  courseModules,
+  courses,
+  lessonPracticeExercises,
+  userLessonProgress,
+} from '@/db/schema';
 import type { CourseWithModulesAndLessons, LessonWithModuleCourse } from '@/modules/courses/types';
 
 export async function listCoursesByUserId(userId: string) {
@@ -61,52 +67,6 @@ export async function listLessonProgressByUserId(userId: string) {
   });
 }
 
-export async function getModuleByIdForUser(moduleId: string, userId: string) {
-  if (!db) {
-    throw new Error('Database is not configured.');
-  }
-
-  return db.query.courseModules
-    .findFirst({
-      where: eq(courseModules.id, moduleId),
-      with: {
-        course: true,
-      },
-    })
-    .then((module) => {
-      if (!module || module.course.userId !== userId) {
-        return null;
-      }
-
-      return module;
-    });
-}
-
-export async function getLessonByIdForUser(lessonId: string, userId: string) {
-  if (!db) {
-    throw new Error('Database is not configured.');
-  }
-
-  return db.query.courseLessons
-    .findFirst({
-      where: eq(courseLessons.id, lessonId),
-      with: {
-        module: {
-          with: {
-            course: true,
-          },
-        },
-      },
-    })
-    .then((lesson) => {
-      if (!lesson || lesson.module.course.userId !== userId) {
-        return null;
-      }
-
-      return lesson;
-    });
-}
-
 export async function getLessonDetailByIdsForUser(
   courseId: string,
   lessonId: string,
@@ -129,6 +89,9 @@ export async function getLessonDetailByIdsForUser(
         with: {
           course: true,
         },
+      },
+      practiceExercises: {
+        orderBy: [asc(lessonPracticeExercises.position)],
       },
     },
   });

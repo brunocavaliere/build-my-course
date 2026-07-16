@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 import { ArrowRight, BookOpenText, CheckCircle2 } from 'lucide-react';
 
-import { auth, isAuthReady } from '@/auth';
+import { auth, isAuthReady, isGitHubAuthConfigured, isGoogleAuthConfigured } from '@/auth';
 import { SignInButton } from '@/components/shared/auth-buttons';
 import { PageContainer } from '@/components/shared';
 import { Button } from '@/components/ui/button';
@@ -65,7 +65,22 @@ export default async function Home() {
                   </Link>
                 </Button>
               ) : isAuthReady ? (
-                <SignInButton className="rounded-full" label="Sign in with GitHub" />
+                <div className="flex flex-wrap gap-3">
+                  {isGoogleAuthConfigured ? (
+                    <SignInButton
+                      provider="google"
+                      className="rounded-full"
+                      label="Sign in with Google"
+                    />
+                  ) : null}
+                  {isGitHubAuthConfigured ? (
+                    <SignInButton
+                      provider="github"
+                      className="rounded-full"
+                      label="Sign in with GitHub"
+                    />
+                  ) : null}
+                </div>
               ) : (
                 <Button asChild className="rounded-full">
                   <Link href="/login">

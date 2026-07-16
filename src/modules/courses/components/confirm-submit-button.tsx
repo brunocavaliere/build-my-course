@@ -4,7 +4,6 @@ import type { ReactNode } from 'react';
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -14,6 +13,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { SubmitButton } from '@/components/ui/submit-button';
 
 type ConfirmSubmitButtonProps = {
   action: () => void | Promise<void>;
@@ -51,9 +51,7 @@ export function ConfirmSubmitButton({
         <AlertDialogFooter>
           <AlertDialogCancel>{cancelLabel}</AlertDialogCancel>
           <form action={action}>
-            <AlertDialogAction asChild>
-              <Button type="submit">{confirmLabel}</Button>
-            </AlertDialogAction>
+            <SubmitButton pendingLabel={`${confirmLabel}...`}>{confirmLabel}</SubmitButton>
           </form>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -2,9 +2,9 @@ import type { ReactNode } from 'react';
 
 import { AlertCircle } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SubmitButton } from '@/components/ui/submit-button';
 import { Textarea } from '@/components/ui/textarea';
 
 type LessonFormValues = {
@@ -86,9 +86,9 @@ export function LessonForm({
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <Button type="submit" className="rounded-full">
+        <SubmitButton className="rounded-full" pendingLabel={`${submitLabel}...`}>
           {submitLabel}
-        </Button>
+        </SubmitButton>
         {secondaryAction}
       </div>
     </form>

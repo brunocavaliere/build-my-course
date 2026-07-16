@@ -1,13 +1,19 @@
 'use client';
 
-import { useFormStatus } from 'react-dom';
 import type { ReactNode } from 'react';
 
-import { AlertCircle, LoaderCircle, Sparkles } from 'lucide-react';
+import { AlertCircle, Sparkles } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { SubmitButton } from '@/components/ui/submit-button';
 import { Textarea } from '@/components/ui/textarea';
 
 type GenerateCourseFormValues = {
@@ -28,21 +34,6 @@ const levelOptions = [
   { label: 'Intermediate', value: 'Intermediate' },
   { label: 'Advanced', value: 'Advanced' },
 ] as const;
-
-function GenerateCourseSubmitButton() {
-  const { pending } = useFormStatus();
-
-  return (
-    <Button
-      type="submit"
-      className="cursor-pointer rounded-full disabled:cursor-not-allowed"
-      disabled={pending}
-    >
-      {pending ? <LoaderCircle className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
-      {pending ? 'Creating your learning path...' : 'Generate course'}
-    </Button>
-  );
-}
 
 export function GenerateCourseForm({
   action,
@@ -75,19 +66,18 @@ export function GenerateCourseForm({
         <div className="grid gap-5 md:grid-cols-2">
           <div className="grid gap-2">
             <Label htmlFor="level">Level</Label>
-            <select
-              id="level"
-              name="level"
-              required
-              defaultValue={defaultValues?.level ?? 'Beginner'}
-              className="border-input bg-background ring-offset-background focus-visible:border-ring focus-visible:ring-ring/50 flex h-10 w-full rounded-md border px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
-            >
-              {levelOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <Select name="level" required defaultValue={defaultValues?.level ?? 'Beginner'}>
+              <SelectTrigger id="level" className="h-10 w-full rounded-md">
+                <SelectValue placeholder="Select a level" />
+              </SelectTrigger>
+              <SelectContent>
+                {levelOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid gap-2">
@@ -107,7 +97,13 @@ export function GenerateCourseForm({
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <GenerateCourseSubmitButton />
+        <SubmitButton
+          className="cursor-pointer rounded-full disabled:cursor-not-allowed"
+          idleIcon={<Sparkles className="size-4" />}
+          pendingLabel="Creating your learning path..."
+        >
+          Generate course
+        </SubmitButton>
         {secondaryAction}
       </div>
     </form>

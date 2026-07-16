@@ -1,25 +1,29 @@
 import { LogIn, LogOut } from 'lucide-react';
 
 import { signIn, signOut } from '@/auth';
-import { Button } from '@/components/ui/button';
+import { SubmitButton } from '@/components/ui/submit-button';
 
 type SignInButtonProps = {
   className?: string;
   label?: string;
+  provider: 'github' | 'google';
 };
 
-export function SignInButton({ className, label = 'Sign in with GitHub' }: SignInButtonProps) {
+export function SignInButton({ className, label = 'Sign in', provider }: SignInButtonProps) {
   return (
     <form
       action={async () => {
         'use server';
-        await signIn('github', { redirectTo: '/app' });
+        await signIn(provider, { redirectTo: '/app' });
       }}
     >
-      <Button type="submit" className={className}>
-        <LogIn className="size-4" />
+      <SubmitButton
+        className={className}
+        idleIcon={<LogIn className="size-4" />}
+        pendingLabel="Signing in..."
+      >
         {label}
-      </Button>
+      </SubmitButton>
     </form>
   );
 }
@@ -42,10 +46,14 @@ export function SignOutButton({
         await signOut({ redirectTo: '/' });
       }}
     >
-      <Button type="submit" variant={variant} className={className}>
-        <LogOut className="size-4" />
+      <SubmitButton
+        variant={variant}
+        className={className}
+        idleIcon={<LogOut className="size-4" />}
+        pendingLabel="Signing out..."
+      >
         {label}
-      </Button>
+      </SubmitButton>
     </form>
   );
 }

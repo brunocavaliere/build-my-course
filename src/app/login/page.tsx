@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 
 import { BookOpenText, ShieldCheck } from 'lucide-react';
 
-import { auth, isAuthReady } from '@/auth';
+import { auth, isAuthReady, isGitHubAuthConfigured, isGoogleAuthConfigured } from '@/auth';
 import { SignInButton } from '@/components/shared/auth-buttons';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,7 +33,22 @@ export default async function LoginPage() {
           </p>
 
           {isAuthReady ? (
-            <SignInButton className="w-full rounded-full" />
+            <div className="space-y-3">
+              {isGoogleAuthConfigured ? (
+                <SignInButton
+                  provider="google"
+                  className="w-full rounded-full"
+                  label="Sign in with Google"
+                />
+              ) : null}
+              {isGitHubAuthConfigured ? (
+                <SignInButton
+                  provider="github"
+                  className="w-full rounded-full"
+                  label="Sign in with GitHub"
+                />
+              ) : null}
+            </div>
           ) : (
             <div className="bg-muted/50 space-y-3 rounded-2xl p-4">
               <div className="flex items-center gap-2 text-sm font-medium">
@@ -41,11 +56,11 @@ export default async function LoginPage() {
                 Auth configuration required
               </div>
               <p className="text-muted-foreground text-sm leading-6">
-                Define `DATABASE_URL`, `AUTH_SECRET`, `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` to
-                enable GitHub login.
+                Define `DATABASE_URL`, `AUTH_SECRET` and at least one OAuth provider pair:
+                `AUTH_GITHUB_ID` + `AUTH_GITHUB_SECRET` or `AUTH_GOOGLE_ID` + `AUTH_GOOGLE_SECRET`.
               </p>
               <Button disabled className="w-full rounded-full">
-                Sign in with GitHub
+                Sign in
               </Button>
             </div>
           )}

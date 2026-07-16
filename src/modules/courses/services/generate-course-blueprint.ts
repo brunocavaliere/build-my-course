@@ -5,7 +5,6 @@ import { env } from '@/env';
 import type { GeneratedCourseBlueprint } from '@/modules/courses/types';
 
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
-const OPENAI_MODEL = 'gpt-4o-mini';
 
 const generatedLessonSchema = z.object({
   title: z.string().trim().min(1).max(120),
@@ -263,7 +262,7 @@ export async function generateCourseBlueprint(input: {
       Authorization: `Bearer ${env.OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: OPENAI_MODEL,
+      model: env.openAiModel,
       input: [
         {
           role: 'system',

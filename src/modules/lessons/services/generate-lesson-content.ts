@@ -1,7 +1,6 @@
 import { env } from '@/env';
 
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
-const OPENAI_MODEL = 'gpt-4o-mini';
 const REQUEST_TIMEOUT_MS = 45_000;
 
 function buildSystemPrompt() {
@@ -12,7 +11,7 @@ function buildSystemPrompt() {
     'Do not assume advanced knowledge.',
     'Use practical examples.',
     'Avoid unnecessary jargon.',
-    'Do not include links, videos, references, quizzes, flashcards, or external resources.',
+    'Do not include links, videos, references, quizzes, flashcards, exercises, or external resources.',
     'Output valid Markdown only.',
     'Follow exactly this structure:',
     '# Lesson Title',
@@ -20,10 +19,6 @@ function buildSystemPrompt() {
     '## Key Concepts',
     '## Examples',
     '## Common Mistakes',
-    '## Practice Exercises',
-    '1. ...',
-    '2. ...',
-    '3. ...',
     '## Summary',
   ].join(' ');
 }
@@ -47,7 +42,7 @@ function buildUserPrompt(input: {
     `Lesson description: ${input.lessonDescription ?? 'Not specified'}`,
     'Write lesson content that matches this context.',
     'Keep content focused and not excessively long.',
-    'Practice exercises must be simple and actionable.',
+    'Do not include practice exercises in the lesson body.',
   ].join('\n');
 }
 
@@ -119,7 +114,6 @@ function validateMarkdownContent(markdown: string, lessonTitle: string) {
     '## Key Concepts',
     '## Examples',
     '## Common Mistakes',
-    '## Practice Exercises',
     '## Summary',
   ];
 
@@ -161,7 +155,7 @@ export async function generateLessonContent(input: {
         Authorization: `Bearer ${env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: OPENAI_MODEL,
+        model: env.openAiModel,
         input: [
           {
             role: 'system',

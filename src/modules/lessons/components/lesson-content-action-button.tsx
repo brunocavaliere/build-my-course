@@ -1,12 +1,9 @@
 'use client';
 
-import { useFormStatus } from 'react-dom';
-
-import { LoaderCircle, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -16,23 +13,21 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { SubmitButton } from '@/components/ui/submit-button';
 
 type LessonContentActionButtonProps = {
   hasContent: boolean;
 };
 
-function SubmitButton({ hasContent }: LessonContentActionButtonProps) {
-  const { pending } = useFormStatus();
-
+function LessonContentSubmitButton({ hasContent }: LessonContentActionButtonProps) {
   return (
-    <Button type="submit" className="rounded-full" disabled={pending}>
-      {pending ? <LoaderCircle className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
-      {pending
-        ? 'Generating lesson content...'
-        : hasContent
-          ? 'Regenerate content'
-          : 'Generate lesson content'}
-    </Button>
+    <SubmitButton
+      className="rounded-full"
+      idleIcon={<Sparkles className="size-4" />}
+      pendingLabel="Generating lesson content..."
+    >
+      {hasContent ? 'Regenerate content' : 'Generate lesson content'}
+    </SubmitButton>
   );
 }
 
@@ -45,7 +40,7 @@ export function LessonContentActionForm({ action, hasContent }: LessonContentAct
   if (!hasContent) {
     return (
       <form action={action}>
-        <SubmitButton hasContent={hasContent} />
+        <LessonContentSubmitButton hasContent={hasContent} />
       </form>
     );
   }
@@ -66,9 +61,7 @@ export function LessonContentActionForm({ action, hasContent }: LessonContentAct
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <form action={action}>
-            <AlertDialogAction asChild>
-              <Button type="submit">Regenerate content</Button>
-            </AlertDialogAction>
+            <LessonContentSubmitButton hasContent={hasContent} />
           </form>
         </AlertDialogFooter>
       </AlertDialogContent>

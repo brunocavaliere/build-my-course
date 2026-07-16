@@ -8,6 +8,7 @@ import { ThemeToggle } from '@/components/shared/theme-toggle';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { SubmitButton } from '@/components/ui/submit-button';
 import { cn } from '@/lib/utils';
 
 type SidebarUserMenuProps = {
@@ -66,10 +67,14 @@ export function SidebarUserMenu({ signOutAction, userEmail, userLabel }: Sidebar
             />
 
             <form action={signOutAction}>
-              <Button type="submit" variant="ghost" className="w-full justify-start rounded-xl">
-                <LogOut className="size-4" />
+              <SubmitButton
+                variant="ghost"
+                className="w-full justify-start rounded-xl"
+                idleIcon={<LogOut className="size-4" />}
+                pendingLabel="Signing out..."
+              >
                 Sign out
-              </Button>
+              </SubmitButton>
             </form>
           </CardContent>
         </Card>

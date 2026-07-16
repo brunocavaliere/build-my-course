@@ -19,10 +19,23 @@ type AppHeaderProps = {
 export function AppHeader({ actions, className }: AppHeaderProps) {
   const pathname = usePathname();
   const isCoursePage = /^\/app\/courses\/[^/]+$/.test(pathname);
+  const lessonMatch = pathname.match(/^\/app\/courses\/([^/]+)\/lessons\/[^/]+$/);
+  const courseIdFromLesson = lessonMatch?.[1] ?? null;
 
   return (
     <div className={cn('flex min-w-0 items-center gap-3', className)}>
-      {isCoursePage ? (
+      {courseIdFromLesson ? (
+        <Button
+          asChild
+          variant="ghost"
+          className="hidden rounded-full pl-0 hover:bg-transparent md:inline-flex"
+        >
+          <Link href={`/app/courses/${courseIdFromLesson}`}>
+            <ArrowLeft className="size-4" />
+            Back to Course
+          </Link>
+        </Button>
+      ) : isCoursePage ? (
         <Button
           asChild
           variant="ghost"

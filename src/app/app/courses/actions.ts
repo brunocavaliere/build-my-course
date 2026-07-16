@@ -1,5 +1,6 @@
 'use server';
 
+import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
@@ -8,6 +9,7 @@ import {
   createCourse,
   createGeneratedCourseForUser,
   createNextCourseLesson,
+  createNextLessonPracticeExercisesForUser,
   createNextCourseModule,
   deleteCourseByIdForUser,
   deleteCourseLessonByIdForUser,
@@ -21,6 +23,9 @@ import {
 import { generateCourseBlueprint } from '@/modules/courses/services/generate-course-blueprint';
 import { getLessonDetailByIdsForUser } from '@/modules/courses/queries';
 import { generateLessonContent } from '@/modules/lessons/services/generate-lesson-content';
+import { generatePracticeExercises } from '@/modules/lessons/services/generate-practice-exercises';
+
+const DEFAULT_PRACTICE_EXERCISE_COUNT = 3;
 
 const courseMetadataSchema = z.object({
   title: z.string().trim().min(1, 'Title is required.'),
@@ -92,11 +97,11 @@ const generateCourseSchema = z.object({
 });
 
 function buildErrorRedirect(pathname: string, errorMessage: string, errorParam = 'error') {
-  const params = new URLSearchParams({
-    [errorParam]: errorMessage,
-  });
+  const url = new URL(pathname, 'http://localhost');
 
-  return `${pathname}?${params.toString()}`;
+  url.searchParams.set(errorParam, errorMessage);
+
+  return `${url.pathname}${url.search}`;
 }
 
 async function requireUserId() {
@@ -175,6 +180,10 @@ export async function generateCourseAction(formData: FormData) {
 
     redirect(`/app/courses/${course.id}`);
   } catch (error) {
+    if (isRedirectError(error)) {
+      throw error;
+    }
+
     const message = error instanceof Error ? error.message : 'Unable to generate course right now.';
 
     redirect(buildErrorRedirect('/app/courses/new', message, 'generateError'));
@@ -416,13 +425,90 @@ export async function generateLessonContentAction(courseId: string, lessonId: st
       redirect('/app/courses');
     }
 
+    if ((lessonDetail.lesson.practiceExercises?.length ?? 0) === 0) {
+      const exercises = await generatePracticeExercises({
+        courseTitle: lessonDetail.lesson.module.course.title,
+        courseGoal: lessonDetail.lesson.module.course.goal,
+        level: lessonDetail.lesson.module.course.level,
+        moduleTitle: lessonDetail.lesson.module.title,
+        moduleDescription: lessonDetail.lesson.module.description,
+        lessonTitle: lessonDetail.lesson.title,
+        lessonDescription: lessonDetail.lesson.description,
+        lessonContent: content,
+        count: DEFAULT_PRACTICE_EXERCISE_COUNT,
+        existingExerciseTitles: [],
+      });
+
+      await createNextLessonPracticeExercisesForUser({
+        lessonId,
+        userId,
+        exercises,
+      });
+    }
+
     redirect(`/app/courses/${courseId}/lessons/${lessonId}`);
   } catch (error) {
+    if (isRedirectError(error)) {
+      throw error;
+    }
+
     const message =
       error instanceof Error ? error.message : 'Unable to generate lesson content right now.';
 
     redirect(
       buildErrorRedirect(`/app/courses/${courseId}/lessons/${lessonId}`, message, 'aiError')
+    );
+  }
+}
+
+export async function generatePracticeExercisesAction(courseId: string, lessonId: string) {
+  const userId = await requireUserId();
+  const lessonDetail = await getLessonDetailByIdsForUser(courseId, lessonId, userId);
+
+  if (!lessonDetail) {
+    redirect('/app/courses');
+  }
+
+  try {
+    const exercises = await generatePracticeExercises({
+      courseTitle: lessonDetail.lesson.module.course.title,
+      courseGoal: lessonDetail.lesson.module.course.goal,
+      level: lessonDetail.lesson.module.course.level,
+      moduleTitle: lessonDetail.lesson.module.title,
+      moduleDescription: lessonDetail.lesson.module.description,
+      lessonTitle: lessonDetail.lesson.title,
+      lessonDescription: lessonDetail.lesson.description,
+      lessonContent: lessonDetail.lesson.content,
+      count: DEFAULT_PRACTICE_EXERCISE_COUNT,
+      existingExerciseTitles:
+        lessonDetail.lesson.practiceExercises?.map((item) => item.title) ?? [],
+    });
+
+    const createdExercises = await createNextLessonPracticeExercisesForUser({
+      lessonId,
+      userId,
+      exercises,
+    });
+
+    if (!createdExercises) {
+      redirect('/app/courses');
+    }
+
+    redirect(`/app/courses/${courseId}/lessons/${lessonId}?tab=practice`);
+  } catch (error) {
+    if (isRedirectError(error)) {
+      throw error;
+    }
+
+    const message =
+      error instanceof Error ? error.message : 'Unable to generate practice exercises right now.';
+
+    redirect(
+      buildErrorRedirect(
+        `/app/courses/${courseId}/lessons/${lessonId}?tab=practice`,
+        message,
+        'practiceError'
+      )
     );
   }
 }

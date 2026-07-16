@@ -6,7 +6,6 @@ import { Trash2 } from 'lucide-react';
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -16,6 +15,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { SubmitButton } from '@/components/ui/submit-button';
 
 type DeleteCourseButtonProps = {
   action: () => void | Promise<void>;
@@ -42,12 +42,13 @@ export function DeleteCourseButton({
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <form action={action}>
-            <AlertDialogAction asChild>
-              <Button type="submit" variant="destructive">
-                <Trash2 className="size-4" />
-                Delete Course
-              </Button>
-            </AlertDialogAction>
+            <SubmitButton
+              variant="destructive"
+              idleIcon={<Trash2 className="size-4" />}
+              pendingLabel="Deleting course..."
+            >
+              Delete Course
+            </SubmitButton>
           </form>
         </AlertDialogFooter>
       </AlertDialogContent>

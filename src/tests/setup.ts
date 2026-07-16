@@ -5,6 +5,7 @@ import { afterEach } from 'vitest';
 
 process.env.NEXT_PUBLIC_APP_NAME ??= 'BuildMyCourse';
 process.env.NEXT_PUBLIC_APP_URL ??= 'http://localhost:3000';
+process.env.AUTH_SECRET ??= 'test-auth-secret';
 
 class ResizeObserverMock {
   observe() {}

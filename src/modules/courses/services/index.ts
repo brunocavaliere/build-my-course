@@ -1,14 +1,23 @@
 import { and, desc, eq, sql } from 'drizzle-orm';
 
 import { db } from '@/db';
-import { courseLessons, courseModules, courses, userLessonProgress } from '@/db/schema';
+import {
+  courseLessons,
+  courseModules,
+  courses,
+  lessonPracticeExercises,
+  userLessonProgress,
+} from '@/db/schema';
 import type {
   Course,
   CourseLesson,
   CourseModule,
   GeneratedCourseBlueprint,
+  GeneratedPracticeExercise,
+  LessonPracticeExercise,
   NewCourse,
   NewCourseLesson,
+  NewLessonPracticeExercise,
   NewCourseModule,
   UserLessonProgress,
 } from '@/modules/courses/types';
@@ -258,6 +267,75 @@ export async function createCourseLesson(data: {
   return lesson;
 }
 
+export async function createLessonPracticeExercises(data: {
+  lessonId: string;
+  exercises: GeneratedPracticeExercise[];
+  startPosition?: number;
+}): Promise<LessonPracticeExercise[]> {
+  if (!db) {
+    throw new Error('Database is not configured.');
+  }
+
+  if (data.exercises.length === 0) {
+    return [];
+  }
+
+  const payload: NewLessonPracticeExercise[] = data.exercises.map((exercise, index) => ({
+    lessonId: data.lessonId,
+    title: exercise.title,
+    instructions: exercise.instructions,
+    type: exercise.type,
+    options: exercise.options,
+    correctOptionIndex: exercise.correctOptionIndex,
+    answerGuidance: exercise.answerGuidance ?? null,
+    position: (data.startPosition ?? 1) + index,
+    createdAt: now(),
+    updatedAt: now(),
+  }));
+
+  return db.insert(lessonPracticeExercises).values(payload).returning();
+}
+
+export async function createNextLessonPracticeExercisesForUser(data: {
+  lessonId: string;
+  userId: string;
+  exercises: GeneratedPracticeExercise[];
+}): Promise<LessonPracticeExercise[] | null> {
+  if (!db) {
+    throw new Error('Database is not configured.');
+  }
+
+  if (data.exercises.length === 0) {
+    return [];
+  }
+
+  const [lesson] = await db
+    .select({
+      id: courseLessons.id,
+    })
+    .from(courseLessons)
+    .innerJoin(courseModules, eq(courseModules.id, courseLessons.moduleId))
+    .innerJoin(courses, eq(courses.id, courseModules.courseId))
+    .where(and(eq(courseLessons.id, data.lessonId), eq(courses.userId, data.userId)));
+
+  if (!lesson) {
+    return null;
+  }
+
+  const [positionRow] = await db
+    .select({
+      value: sql<number>`coalesce(max(${lessonPracticeExercises.position}), 0)`,
+    })
+    .from(lessonPracticeExercises)
+    .where(eq(lessonPracticeExercises.lessonId, data.lessonId));
+
+  return createLessonPracticeExercises({
+    lessonId: data.lessonId,
+    exercises: data.exercises,
+    startPosition: (positionRow?.value ?? 0) + 1,
+  });
+}
+
 export async function createNextCourseLesson(data: {
   moduleId: string;
   userId: string;
@@ -423,28 +501,6 @@ export async function setUserLessonProgress(data: {
     .returning();
 
   return progress;
-}
-
-export async function getLatestProgressForCourseUser(courseId: string, userId: string) {
-  if (!db) {
-    throw new Error('Database is not configured.');
-  }
-
-  return db.query.userLessonProgress
-    .findMany({
-      where: eq(userLessonProgress.userId, userId),
-      orderBy: [desc(userLessonProgress.updatedAt)],
-      with: {
-        lesson: {
-          with: {
-            module: true,
-          },
-        },
-      },
-    })
-    .then((progressRows) =>
-      progressRows.filter((item) => item.lesson.module.courseId === courseId)
-    );
 }
 
 export async function deleteCourseByIdForUser(courseId: string, userId: string) {

@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth';
 import GitHub from 'next-auth/providers/github';
+import Google from 'next-auth/providers/google';
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
 
 import { db, isDatabaseConfigured } from '@/db';
@@ -14,8 +15,23 @@ const githubProvider =
       })
     : null;
 
+const googleProvider =
+  env.AUTH_GOOGLE_ID && env.AUTH_GOOGLE_SECRET
+    ? Google({
+        clientId: env.AUTH_GOOGLE_ID,
+        clientSecret: env.AUTH_GOOGLE_SECRET,
+        allowDangerousEmailAccountLinking: true,
+      })
+    : null;
+
+const authProviders = [githubProvider, googleProvider].flatMap((provider) =>
+  provider ? [provider] : []
+);
+
 export const isGitHubAuthConfigured = Boolean(githubProvider);
-export const isAuthReady = isDatabaseConfigured && isGitHubAuthConfigured;
+export const isGoogleAuthConfigured = Boolean(googleProvider);
+export const isAnyAuthProviderConfigured = authProviders.length > 0;
+export const isAuthReady = isDatabaseConfigured && isAnyAuthProviderConfigured;
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter:
@@ -25,7 +41,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           accountsTable: accounts,
         })
       : undefined,
-  secret: env.AUTH_SECRET ?? 'development-auth-secret',
+  secret: env.AUTH_SECRET,
   trustHost: true,
   session: {
     strategy: 'jwt',
@@ -49,5 +65,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: {
     signIn: '/login',
   },
-  providers: githubProvider ? [githubProvider] : [],
+  providers: authProviders,
 });

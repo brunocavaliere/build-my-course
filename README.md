@@ -42,7 +42,10 @@ AUTH_SECRET=
 AUTH_URL=
 AUTH_GITHUB_ID=
 AUTH_GITHUB_SECRET=
+AUTH_GOOGLE_ID=
+AUTH_GOOGLE_SECRET=
 OPENAI_API_KEY=
+OPENAI_MODEL=gpt-4o-mini
 ```
 
 `OPENAI_API_KEY` habilita geracao automatica de cursos em `/app/courses/new`.
@@ -91,7 +94,7 @@ src/
 
 ## Banco e autenticacao
 
-Fluxo de banco escolhido: Neon + Drizzle. Autenticacao: Auth.js com GitHub.
+Fluxo de banco escolhido: Neon + Drizzle. Autenticacao: Auth.js com GitHub e Google.
 
 - Schema em `src/db/schema.ts`
 - Client em `src/db/index.ts`

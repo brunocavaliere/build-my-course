@@ -3,6 +3,7 @@ import {
   boolean,
   index,
   integer,
+  jsonb,
   pgTable,
   primaryKey,
   text,
@@ -104,6 +105,32 @@ export const courseLessons = pgTable(
   })
 );
 
+export const lessonPracticeExercises = pgTable(
+  'lesson_practice_exercises',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    lessonId: uuid('lesson_id')
+      .notNull()
+      .references(() => courseLessons.id, { onDelete: 'cascade' }),
+    title: text('title').notNull(),
+    instructions: text('instructions').notNull(),
+    type: text('type').notNull(),
+    options: jsonb('options').$type<string[] | null>(),
+    correctOptionIndex: integer('correct_option_index'),
+    answerGuidance: text('answer_guidance'),
+    position: integer('position').notNull(),
+    createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow().notNull(),
+  },
+  (table) => ({
+    lessonIdIdx: index('lesson_practice_exercises_lesson_id_idx').on(table.lessonId),
+    lessonPositionUniqueIdx: uniqueIndex('lesson_practice_exercises_lesson_position_idx').on(
+      table.lessonId,
+      table.position
+    ),
+  })
+);
+
 export const userLessonProgress = pgTable(
   'user_lesson_progress',
   {
@@ -155,7 +182,15 @@ export const courseLessonsRelations = relations(courseLessons, ({ many, one }) =
     fields: [courseLessons.moduleId],
     references: [courseModules.id],
   }),
+  practiceExercises: many(lessonPracticeExercises),
   progress: many(userLessonProgress),
+}));
+
+export const lessonPracticeExercisesRelations = relations(lessonPracticeExercises, ({ one }) => ({
+  lesson: one(courseLessons, {
+    fields: [lessonPracticeExercises.lessonId],
+    references: [courseLessons.id],
+  }),
 }));
 
 export const userLessonProgressRelations = relations(userLessonProgress, ({ one }) => ({
