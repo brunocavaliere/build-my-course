@@ -126,10 +126,7 @@ export async function createCourseAction(formData: FormData) {
 
   if (!parsed.success) {
     redirect(
-      buildErrorRedirect(
-        '/app/courses/new',
-        parsed.error.issues[0]?.message ?? 'Invalid course data.'
-      )
+      buildErrorRedirect('/app/new', parsed.error.issues[0]?.message ?? 'Invalid course data.')
     );
   }
 
@@ -142,7 +139,7 @@ export async function createCourseAction(formData: FormData) {
     estimatedWeeks: parsed.data.estimatedWeeks,
   });
 
-  redirect(`/app/courses/${course.id}`);
+  redirect(`/app/${course.id}`);
 }
 
 export async function generateCourseAction(formData: FormData) {
@@ -156,7 +153,7 @@ export async function generateCourseAction(formData: FormData) {
   if (!parsed.success) {
     redirect(
       buildErrorRedirect(
-        '/app/courses/new',
+        '/app/new',
         parsed.error.issues[0]?.message ?? 'Invalid course generation data.',
         'generateError'
       )
@@ -178,7 +175,7 @@ export async function generateCourseAction(formData: FormData) {
       blueprint,
     });
 
-    redirect(`/app/courses/${course.id}`);
+    redirect(`/app/${course.id}`);
   } catch (error) {
     if (isRedirectError(error)) {
       throw error;
@@ -186,7 +183,7 @@ export async function generateCourseAction(formData: FormData) {
 
     const message = error instanceof Error ? error.message : 'Unable to generate course right now.';
 
-    redirect(buildErrorRedirect('/app/courses/new', message, 'generateError'));
+    redirect(buildErrorRedirect('/app/new', message, 'generateError'));
   }
 }
 
@@ -203,7 +200,7 @@ export async function updateCourseAction(courseId: string, formData: FormData) {
   if (!parsed.success) {
     redirect(
       buildErrorRedirect(
-        `/app/courses/${courseId}/edit`,
+        `/app/${courseId}/edit`,
         parsed.error.issues[0]?.message ?? 'Invalid course data.'
       )
     );
@@ -218,10 +215,10 @@ export async function updateCourseAction(courseId: string, formData: FormData) {
   });
 
   if (!updated) {
-    redirect('/app/courses');
+    redirect('/app');
   }
 
-  redirect(`/app/courses/${courseId}`);
+  redirect(`/app/${courseId}`);
 }
 
 export async function deleteCourseAction(courseId: string) {
@@ -229,7 +226,7 @@ export async function deleteCourseAction(courseId: string) {
 
   await deleteCourseByIdForUser(courseId, userId);
 
-  redirect('/app/courses');
+  redirect('/app');
 }
 
 export async function createModuleAction(courseId: string, formData: FormData) {
@@ -243,7 +240,7 @@ export async function createModuleAction(courseId: string, formData: FormData) {
   if (!parsed.success) {
     redirect(
       buildErrorRedirect(
-        `/app/courses/${courseId}`,
+        `/app/${courseId}`,
         parsed.error.issues[0]?.message ?? 'Invalid module data.'
       )
     );
@@ -257,7 +254,7 @@ export async function createModuleAction(courseId: string, formData: FormData) {
     estimatedMinutes: parsed.data.estimatedMinutes,
   });
 
-  redirect(`/app/courses/${courseId}`);
+  redirect(`/app/${courseId}`);
 }
 
 export async function updateModuleAction(courseId: string, moduleId: string, formData: FormData) {
@@ -271,7 +268,7 @@ export async function updateModuleAction(courseId: string, moduleId: string, for
   if (!parsed.success) {
     redirect(
       buildErrorRedirect(
-        `/app/courses/${courseId}?editModule=${moduleId}`,
+        `/app/${courseId}?editModule=${moduleId}`,
         parsed.error.issues[0]?.message ?? 'Invalid module data.'
       )
     );
@@ -285,7 +282,7 @@ export async function updateModuleAction(courseId: string, moduleId: string, for
     estimatedMinutes: parsed.data.estimatedMinutes,
   });
 
-  redirect(`/app/courses/${courseId}`);
+  redirect(`/app/${courseId}`);
 }
 
 export async function deleteModuleAction(courseId: string, moduleId: string) {
@@ -293,7 +290,7 @@ export async function deleteModuleAction(courseId: string, moduleId: string) {
 
   await deleteCourseModuleByIdForUser(moduleId, userId);
 
-  redirect(`/app/courses/${courseId}`);
+  redirect(`/app/${courseId}`);
 }
 
 export async function createLessonAction(courseId: string, moduleId: string, formData: FormData) {
@@ -308,7 +305,7 @@ export async function createLessonAction(courseId: string, moduleId: string, for
   if (!parsed.success) {
     redirect(
       buildErrorRedirect(
-        `/app/courses/${courseId}?createLessonFor=${moduleId}`,
+        `/app/${courseId}?createLessonFor=${moduleId}`,
         parsed.error.issues[0]?.message ?? 'Invalid lesson data.'
       )
     );
@@ -323,7 +320,7 @@ export async function createLessonAction(courseId: string, moduleId: string, for
     estimatedMinutes: parsed.data.estimatedMinutes,
   });
 
-  redirect(`/app/courses/${courseId}`);
+  redirect(`/app/${courseId}`);
 }
 
 export async function updateLessonAction(courseId: string, lessonId: string, formData: FormData) {
@@ -338,7 +335,7 @@ export async function updateLessonAction(courseId: string, lessonId: string, for
   if (!parsed.success) {
     redirect(
       buildErrorRedirect(
-        `/app/courses/${courseId}?editLesson=${lessonId}`,
+        `/app/${courseId}?editLesson=${lessonId}`,
         parsed.error.issues[0]?.message ?? 'Invalid lesson data.'
       )
     );
@@ -353,7 +350,7 @@ export async function updateLessonAction(courseId: string, lessonId: string, for
     estimatedMinutes: parsed.data.estimatedMinutes,
   });
 
-  redirect(`/app/courses/${courseId}`);
+  redirect(`/app/${courseId}`);
 }
 
 export async function deleteLessonAction(courseId: string, lessonId: string) {
@@ -361,7 +358,7 @@ export async function deleteLessonAction(courseId: string, lessonId: string) {
 
   await deleteCourseLessonByIdForUser(lessonId, userId);
 
-  redirect(`/app/courses/${courseId}`);
+  redirect(`/app/${courseId}`);
 }
 
 export async function toggleLessonProgressAction(
@@ -377,7 +374,7 @@ export async function toggleLessonProgressAction(
     completed,
   });
 
-  redirect(`/app/courses/${courseId}`);
+  redirect(`/app/${courseId}`);
 }
 
 export async function toggleLessonProgressFromLessonPageAction(
@@ -393,7 +390,7 @@ export async function toggleLessonProgressFromLessonPageAction(
     completed,
   });
 
-  redirect(`/app/courses/${courseId}/lessons/${lessonId}`);
+  redirect(`/app/${courseId}/lessons/${lessonId}`);
 }
 
 export async function generateLessonContentAction(courseId: string, lessonId: string) {
@@ -401,7 +398,7 @@ export async function generateLessonContentAction(courseId: string, lessonId: st
   const lessonDetail = await getLessonDetailByIdsForUser(courseId, lessonId, userId);
 
   if (!lessonDetail) {
-    redirect('/app/courses');
+    redirect('/app');
   }
 
   try {
@@ -422,7 +419,7 @@ export async function generateLessonContentAction(courseId: string, lessonId: st
     });
 
     if (!updatedLesson) {
-      redirect('/app/courses');
+      redirect('/app');
     }
 
     if ((lessonDetail.lesson.practiceExercises?.length ?? 0) === 0) {
@@ -446,7 +443,7 @@ export async function generateLessonContentAction(courseId: string, lessonId: st
       });
     }
 
-    redirect(`/app/courses/${courseId}/lessons/${lessonId}`);
+    redirect(`/app/${courseId}/lessons/${lessonId}`);
   } catch (error) {
     if (isRedirectError(error)) {
       throw error;
@@ -455,9 +452,7 @@ export async function generateLessonContentAction(courseId: string, lessonId: st
     const message =
       error instanceof Error ? error.message : 'Unable to generate lesson content right now.';
 
-    redirect(
-      buildErrorRedirect(`/app/courses/${courseId}/lessons/${lessonId}`, message, 'aiError')
-    );
+    redirect(buildErrorRedirect(`/app/${courseId}/lessons/${lessonId}`, message, 'aiError'));
   }
 }
 
@@ -466,7 +461,7 @@ export async function generatePracticeExercisesAction(courseId: string, lessonId
   const lessonDetail = await getLessonDetailByIdsForUser(courseId, lessonId, userId);
 
   if (!lessonDetail) {
-    redirect('/app/courses');
+    redirect('/app');
   }
 
   try {
@@ -491,10 +486,10 @@ export async function generatePracticeExercisesAction(courseId: string, lessonId
     });
 
     if (!createdExercises) {
-      redirect('/app/courses');
+      redirect('/app');
     }
 
-    redirect(`/app/courses/${courseId}/lessons/${lessonId}?tab=practice`);
+    redirect(`/app/${courseId}/lessons/${lessonId}?tab=practice`);
   } catch (error) {
     if (isRedirectError(error)) {
       throw error;
@@ -505,7 +500,7 @@ export async function generatePracticeExercisesAction(courseId: string, lessonId
 
     redirect(
       buildErrorRedirect(
-        `/app/courses/${courseId}/lessons/${lessonId}?tab=practice`,
+        `/app/${courseId}/lessons/${lessonId}?tab=practice`,
         message,
         'practiceError'
       )

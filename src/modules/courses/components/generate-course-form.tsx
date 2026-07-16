@@ -26,21 +26,35 @@ type GenerateCourseFormProps = {
   action: (formData: FormData) => void | Promise<void>;
   defaultValues?: GenerateCourseFormValues;
   error?: string;
+  labels?: {
+    goalLabel?: string;
+    goalPlaceholder?: string;
+    levelBeginner?: string;
+    levelIntermediate?: string;
+    levelAdvanced?: string;
+    levelLabel?: string;
+    levelPlaceholder?: string;
+    submit?: string;
+    submitting?: string;
+    weeksLabel?: string;
+    weeksPlaceholder?: string;
+  };
   secondaryAction?: ReactNode;
 };
-
-const levelOptions = [
-  { label: 'Beginner', value: 'Beginner' },
-  { label: 'Intermediate', value: 'Intermediate' },
-  { label: 'Advanced', value: 'Advanced' },
-] as const;
 
 export function GenerateCourseForm({
   action,
   defaultValues,
   error,
+  labels,
   secondaryAction,
 }: GenerateCourseFormProps) {
+  const levelOptions = [
+    { label: labels?.levelBeginner ?? 'Beginner', value: 'Beginner' },
+    { label: labels?.levelIntermediate ?? 'Intermediate', value: 'Intermediate' },
+    { label: labels?.levelAdvanced ?? 'Advanced', value: 'Advanced' },
+  ] as const;
+
   return (
     <form action={action} className="space-y-6">
       {error ? (
@@ -52,23 +66,25 @@ export function GenerateCourseForm({
 
       <div className="grid gap-5">
         <div className="grid gap-2">
-          <Label htmlFor="goal">Learning goal</Label>
+          <Label htmlFor="goal">{labels?.goalLabel ?? 'Learning goal'}</Label>
           <Textarea
             id="goal"
             name="goal"
             required
             defaultValue={defaultValues?.goal ?? ''}
-            placeholder="I want to learn React well enough to get a frontend job."
+            placeholder={
+              labels?.goalPlaceholder ?? 'I want to learn React well enough to get a frontend job.'
+            }
             rows={5}
           />
         </div>
 
         <div className="grid gap-5 md:grid-cols-2">
           <div className="grid gap-2">
-            <Label htmlFor="level">Level</Label>
+            <Label htmlFor="level">{labels?.levelLabel ?? 'Level'}</Label>
             <Select name="level" required defaultValue={defaultValues?.level ?? 'Beginner'}>
               <SelectTrigger id="level" className="h-10 w-full rounded-md">
-                <SelectValue placeholder="Select a level" />
+                <SelectValue placeholder={labels?.levelPlaceholder ?? 'Select a level'} />
               </SelectTrigger>
               <SelectContent>
                 {levelOptions.map((option) => (
@@ -81,7 +97,7 @@ export function GenerateCourseForm({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="estimatedWeeks">Estimated weeks</Label>
+            <Label htmlFor="estimatedWeeks">{labels?.weeksLabel ?? 'Estimated weeks'}</Label>
             <Input
               id="estimatedWeeks"
               name="estimatedWeeks"
@@ -90,7 +106,7 @@ export function GenerateCourseForm({
               max={52}
               required
               defaultValue={defaultValues?.estimatedWeeks ?? 6}
-              placeholder="6"
+              placeholder={labels?.weeksPlaceholder ?? '6'}
             />
           </div>
         </div>
@@ -100,9 +116,9 @@ export function GenerateCourseForm({
         <SubmitButton
           className="cursor-pointer rounded-full disabled:cursor-not-allowed"
           idleIcon={<Sparkles className="size-4" />}
-          pendingLabel="Creating your learning path..."
+          pendingLabel={labels?.submitting ?? 'Creating your learning path...'}
         >
-          Generate course
+          {labels?.submit ?? 'Generate course'}
         </SubmitButton>
         {secondaryAction}
       </div>

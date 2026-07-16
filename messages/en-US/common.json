@@ -1,0 +1,29 @@
+{
+  "AppHeader": {
+    "backToCourse": "Back to Course",
+    "backToCourses": "Back to Courses"
+  },
+  "UserMenu": {
+    "openUserMenu": "Open user menu",
+    "signedInUser": "Signed in user",
+    "signOut": "Sign out",
+    "signingOut": "Signing out...",
+    "toggleTheme": "Toggle theme"
+  },
+  "ThemeToggle": {
+    "label": "Toggle theme"
+  },
+  "LocaleSwitcher": {
+    "label": "Language",
+    "placeholder": "Select a language"
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "description": "This route does not exist in Build My Course yet.",
+    "back": "Back to landing page"
+  },
+  "Loading": {
+    "title": "Loading Build My Course",
+    "description": "Preparing landing page or app workspace."
+  }
+}

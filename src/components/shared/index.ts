@@ -3,6 +3,7 @@ export { AppShell } from '@/components/shared/app-shell';
 export { BrandWordmark } from '@/components/shared/brand-wordmark';
 export { EmptyState } from '@/components/shared/empty-state';
 export { ErrorState } from '@/components/shared/error-state';
+export { LocaleSwitcher } from '@/components/shared/locale-switcher';
 export { LoadingState } from '@/components/shared/loading-state';
 export { PageContainer } from '@/components/shared/page-container';
 export { PageHeader } from '@/components/shared/page-header';

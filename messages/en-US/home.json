@@ -1,0 +1,24 @@
+{
+  "Home": {
+    "openDashboard": "Open dashboard",
+    "signIn": "Sign in",
+    "eyebrow": "Personalized learning paths",
+    "seeCourseSetup": "See course setup",
+    "openLogin": "Open login",
+    "featureTitle": "Build course from goal",
+    "featureDescription": "Example goal: \"I want to learn React to get a frontend job\"",
+    "feature1": "Structured modules with lessons",
+    "feature2": "Exercises and quizzes for each stage",
+    "feature3": "Curated resources matched to your objective",
+    "howItWorksEyebrow": "How it works",
+    "howItWorksTitle": "From goal to guided course",
+    "step1": "Step 1",
+    "step1Title": "Describe what you want to learn",
+    "step2": "Step 2",
+    "step2Title": "Get a personalized learning path",
+    "step3": "Step 3",
+    "step3Title": "Learn at your own pace",
+    "signInWithGoogle": "Sign in with Google",
+    "signInWithGitHub": "Sign in with GitHub"
+  }
+}

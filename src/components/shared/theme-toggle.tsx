@@ -8,6 +8,7 @@ import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 
 type ThemeToggleProps = {
+  ariaLabel?: string;
   className?: string;
   label?: string;
   variant?: ComponentProps<typeof Button>['variant'];
@@ -15,6 +16,7 @@ type ThemeToggleProps = {
 };
 
 export function ThemeToggle({
+  ariaLabel = 'Alternar tema',
   className,
   label,
   variant = 'ghost',
@@ -28,7 +30,7 @@ export function ThemeToggle({
       variant={variant}
       size={size}
       className={className}
-      aria-label="Alternar tema"
+      aria-label={ariaLabel}
       onClick={() => setTheme(isDarkMode ? 'light' : 'dark')}
     >
       <SunMoon className="size-4" />

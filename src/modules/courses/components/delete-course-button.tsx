@@ -20,11 +20,19 @@ import { SubmitButton } from '@/components/ui/submit-button';
 type DeleteCourseButtonProps = {
   action: () => void | Promise<void>;
   children?: ReactNode;
+  labels?: {
+    title?: string;
+    description?: string;
+    cancel?: string;
+    confirm?: string;
+    pending?: string;
+  };
 };
 
 export function DeleteCourseButton({
   action,
   children = 'Delete course',
+  labels,
 }: DeleteCourseButtonProps) {
   return (
     <AlertDialog>
@@ -36,18 +44,22 @@ export function DeleteCourseButton({
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure you want to delete this course?</AlertDialogTitle>
-          <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+          <AlertDialogTitle>
+            {labels?.title ?? 'Are you sure you want to delete this course?'}
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            {labels?.description ?? 'This action cannot be undone.'}
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{labels?.cancel ?? 'Cancel'}</AlertDialogCancel>
           <form action={action}>
             <SubmitButton
               variant="destructive"
               idleIcon={<Trash2 className="size-4" />}
-              pendingLabel="Deleting course..."
+              pendingLabel={labels?.pending ?? 'Deleting course...'}
             >
-              Delete Course
+              {labels?.confirm ?? 'Delete Course'}
             </SubmitButton>
           </form>
         </AlertDialogFooter>

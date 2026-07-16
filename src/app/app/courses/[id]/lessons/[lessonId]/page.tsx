@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
 import { CheckCircle2, Circle } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 
 import { auth } from '@/auth';
 import {
@@ -32,6 +33,7 @@ type LessonDetailsPageProps = {
 
 export default async function LessonDetailsPage({ params, searchParams }: LessonDetailsPageProps) {
   const session = await auth();
+  const t = await getTranslations('LessonDetailsPage');
 
   if (!session?.user?.id) {
     redirect('/login');
@@ -54,14 +56,22 @@ export default async function LessonDetailsPage({ params, searchParams }: Lesson
   const practiceGenerationError: string | null = practiceError ?? null;
 
   return (
-    <PageContainer className="max-w-4xl">
+    <PageContainer>
       <PageHeader
         title={lesson.title}
-        description={lesson.description ?? 'Lesson details and generated content.'}
+        description={lesson.description ?? t('descriptionFallback')}
         actions={
           <LessonContentActionForm
             action={generateLessonContentAction.bind(null, courseId, lessonId)}
             hasContent={Boolean(lessonContent)}
+            labels={{
+              generate: t('generateLessonContent'),
+              regenerate: t('regenerateContent'),
+              regenerating: t('generatingLessonContent'),
+              dialogTitle: t('regenerateDialogTitle'),
+              dialogDescription: t('regenerateDialogDescription'),
+              cancel: t('cancel'),
+            }}
           />
         }
       />
@@ -69,8 +79,8 @@ export default async function LessonDetailsPage({ params, searchParams }: Lesson
       <section className="space-y-6">
         <Tabs defaultValue={tab === 'practice' ? 'practice' : 'lesson'}>
           <TabsList>
-            <TabsTrigger value="lesson">Lesson</TabsTrigger>
-            <TabsTrigger value="practice">Practice Exercises</TabsTrigger>
+            <TabsTrigger value="lesson">{t('lessonTab')}</TabsTrigger>
+            <TabsTrigger value="practice">{t('practiceTab')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="lesson">
@@ -100,7 +110,7 @@ export default async function LessonDetailsPage({ params, searchParams }: Lesson
                       ) : (
                         <Circle className="size-3.5" />
                       )}
-                      {isCompleted ? 'Completed' : 'Not completed'}
+                      {isCompleted ? t('completed') : t('notCompleted')}
                     </span>
                   </div>
 
@@ -112,16 +122,15 @@ export default async function LessonDetailsPage({ params, searchParams }: Lesson
                       !isCompleted
                     )}
                     title={
-                      isCompleted
-                        ? 'Mark this lesson as not completed?'
-                        : 'Mark this lesson as completed?'
+                      isCompleted ? t('markLessonIncompleteTitle') : t('markLessonCompleteTitle')
                     }
-                    description="You can change this again later."
+                    description={t('markLessonDescription')}
                     variant="secondary"
                     className="rounded-full"
-                    confirmLabel={isCompleted ? 'Mark incomplete' : 'Mark complete'}
+                    confirmLabel={isCompleted ? t('markIncomplete') : t('markComplete')}
+                    cancelLabel={t('cancel')}
                   >
-                    {isCompleted ? 'Mark incomplete' : 'Mark complete'}
+                    {isCompleted ? t('markIncomplete') : t('markComplete')}
                   </ConfirmSubmitButton>
                 </div>
 
@@ -141,12 +150,16 @@ export default async function LessonDetailsPage({ params, searchParams }: Lesson
                   <div className="space-y-6">
                     <EmptyState
                       className="border-0 bg-transparent p-0 text-left shadow-none"
-                      title="No generated content yet"
-                      description="Generate this lesson content when you are ready."
+                      title={t('noContentTitle')}
+                      description={t('noContentDescription')}
                     />
                     <LessonContentActionForm
                       action={generateLessonContentAction.bind(null, courseId, lessonId)}
                       hasContent={false}
+                      labels={{
+                        generate: t('generateLessonContent'),
+                        regenerating: t('generatingLessonContent'),
+                      }}
                     />
                   </div>
                 )}
@@ -159,6 +172,25 @@ export default async function LessonDetailsPage({ params, searchParams }: Lesson
               action={generatePracticeExercisesAction.bind(null, courseId, lessonId)}
               exercises={practiceExercises}
               error={practiceGenerationError}
+              labels={{
+                emptyTitle: t('noPracticeTitle'),
+                emptyDescription: t('noPracticeDescription'),
+                generate: t('generatePracticeExercises'),
+                generating: t('generatingExercises'),
+                moreTitle: t('needMorePractice'),
+                moreDescription: t('needMorePracticeDescription'),
+                moreCta: t('generateMoreExercises'),
+                exercise: t('exercise'),
+                multipleChoice: t('multipleChoice'),
+                appliedTask: t('appliedTask'),
+                reflection: t('reflection'),
+                shortAnswer: t('shortAnswer'),
+                checkAnswer: t('checkAnswer'),
+                correct: t('correctAnswer'),
+                incorrect: t('incorrectAnswer'),
+                explanation: t('explanation'),
+                answerGuidance: t('answerGuidance'),
+              }}
             />
           </TabsContent>
         </Tabs>

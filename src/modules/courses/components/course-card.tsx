@@ -8,15 +8,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 type CourseCardProps = {
   course: Course;
+  formatters?: {
+    created?: (date: string) => string;
+    weeks?: (count: number) => string;
+  };
+  labels?: {
+    level?: string;
+    open?: string;
+  };
+  locale?: string;
 };
 
-function formatCreatedAt(value: Date) {
-  return new Intl.DateTimeFormat('en-US', {
+function formatCreatedAt(value: Date, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: 'medium',
   }).format(value);
 }
 
-export function CourseCard({ course }: CourseCardProps) {
+export function CourseCard({ course, formatters, labels, locale = 'en-US' }: CourseCardProps) {
+  const formattedDate = formatCreatedAt(course.createdAt, locale);
+
   return (
     <Card className="border-border/70 rounded-3xl shadow-none">
       <CardHeader className="space-y-3">
@@ -26,8 +37,8 @@ export function CourseCard({ course }: CourseCardProps) {
             <CardDescription className="text-sm leading-6">{course.goal}</CardDescription>
           </div>
           <Button asChild variant="outline" size="sm" className="rounded-full">
-            <Link href={`/app/courses/${course.id}`}>
-              Open
+            <Link href={`/app/${course.id}`}>
+              {labels?.open ?? 'Open'}
               <ArrowUpRight className="size-4" />
             </Link>
           </Button>
@@ -39,9 +50,17 @@ export function CourseCard({ course }: CourseCardProps) {
         ) : null}
 
         <div className="text-muted-foreground flex flex-wrap gap-3 text-xs">
-          {course.level ? <span>Level: {course.level}</span> : null}
-          {course.estimatedWeeks ? <span>{course.estimatedWeeks} weeks</span> : null}
-          <span>Created {formatCreatedAt(course.createdAt)}</span>
+          {course.level ? (
+            <span>
+              {labels?.level ?? 'Level'}: {course.level}
+            </span>
+          ) : null}
+          {course.estimatedWeeks ? (
+            <span>
+              {formatters?.weeks?.(course.estimatedWeeks) ?? `${course.estimatedWeeks} weeks`}
+            </span>
+          ) : null}
+          <span>{formatters?.created?.(formattedDate) ?? `Created ${formattedDate}`}</span>
         </div>
       </CardContent>
     </Card>

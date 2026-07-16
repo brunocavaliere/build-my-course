@@ -17,16 +17,23 @@ import { SubmitButton } from '@/components/ui/submit-button';
 
 type LessonContentActionButtonProps = {
   hasContent: boolean;
+  labels?: {
+    generate?: string;
+    regenerate?: string;
+    regenerating?: string;
+  };
 };
 
-function LessonContentSubmitButton({ hasContent }: LessonContentActionButtonProps) {
+function LessonContentSubmitButton({ hasContent, labels }: LessonContentActionButtonProps) {
   return (
     <SubmitButton
       className="rounded-full"
       idleIcon={<Sparkles className="size-4" />}
-      pendingLabel="Generating lesson content..."
+      pendingLabel={labels?.regenerating ?? 'Generating lesson content...'}
     >
-      {hasContent ? 'Regenerate content' : 'Generate lesson content'}
+      {hasContent
+        ? (labels?.regenerate ?? 'Regenerate content')
+        : (labels?.generate ?? 'Generate lesson content')}
     </SubmitButton>
   );
 }
@@ -34,13 +41,25 @@ function LessonContentSubmitButton({ hasContent }: LessonContentActionButtonProp
 type LessonContentActionFormProps = {
   action: () => void | Promise<void>;
   hasContent: boolean;
+  labels?: {
+    generate?: string;
+    regenerate?: string;
+    regenerating?: string;
+    dialogTitle?: string;
+    dialogDescription?: string;
+    cancel?: string;
+  };
 };
 
-export function LessonContentActionForm({ action, hasContent }: LessonContentActionFormProps) {
+export function LessonContentActionForm({
+  action,
+  hasContent,
+  labels,
+}: LessonContentActionFormProps) {
   if (!hasContent) {
     return (
       <form action={action}>
-        <LessonContentSubmitButton hasContent={hasContent} />
+        <LessonContentSubmitButton hasContent={hasContent} labels={labels} />
       </form>
     );
   }
@@ -50,18 +69,20 @@ export function LessonContentActionForm({ action, hasContent }: LessonContentAct
       <AlertDialogTrigger asChild>
         <Button type="button" className="rounded-full">
           <Sparkles className="size-4" />
-          Regenerate content
+          {labels?.regenerate ?? 'Regenerate content'}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Regenerate lesson content?</AlertDialogTitle>
-          <AlertDialogDescription>Previous lesson content will be replaced.</AlertDialogDescription>
+          <AlertDialogTitle>{labels?.dialogTitle ?? 'Regenerate lesson content?'}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {labels?.dialogDescription ?? 'Previous lesson content will be replaced.'}
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{labels?.cancel ?? 'Cancel'}</AlertDialogCancel>
           <form action={action}>
-            <LessonContentSubmitButton hasContent={hasContent} />
+            <LessonContentSubmitButton hasContent={hasContent} labels={labels} />
           </form>
         </AlertDialogFooter>
       </AlertDialogContent>

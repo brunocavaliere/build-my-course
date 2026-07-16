@@ -14,38 +14,51 @@ import { cn } from '@/lib/utils';
 type AppHeaderProps = {
   actions?: ReactNode;
   className?: string;
+  labels?: {
+    backToCourse?: string;
+    backToCourses?: string;
+  };
   userMenu?: ReactNode;
 };
 
-export function AppHeader({ actions, className, userMenu }: AppHeaderProps) {
+export function AppHeader({ actions, className, labels, userMenu }: AppHeaderProps) {
   const pathname = usePathname();
-  const isCoursesListPage = pathname === '/app/courses';
-  const isCourseNewPage = pathname === '/app/courses/new';
-  const isCoursePage = /^\/app\/courses\/[^/]+$/.test(pathname);
-  const lessonMatch = pathname.match(/^\/app\/courses\/([^/]+)\/lessons\/[^/]+$/);
+  const isCoursesListPage = pathname === '/app';
+  const isCourseNewPage = pathname === '/app/new';
+  const isCoursePage = /^\/app\/[^/]+$/.test(pathname) && pathname !== '/app/new';
+  const editMatch = pathname.match(/^\/app\/([^/]+)\/edit$/);
+  const lessonMatch = pathname.match(/^\/app\/([^/]+)\/lessons\/[^/]+$/);
+  const courseIdFromEdit = editMatch?.[1] ?? null;
   const courseIdFromLesson = lessonMatch?.[1] ?? null;
 
   return (
     <div className={cn('flex min-w-0 items-center gap-3', className)}>
       {courseIdFromLesson ? (
         <Button asChild variant="ghost" className="rounded-full pl-0 hover:bg-transparent">
-          <Link href={`/app/courses/${courseIdFromLesson}`}>
+          <Link href={`/app/${courseIdFromLesson}`}>
             <ArrowLeft className="size-4" />
-            Back to Course
+            {labels?.backToCourse ?? 'Back to Course'}
+          </Link>
+        </Button>
+      ) : courseIdFromEdit ? (
+        <Button asChild variant="ghost" className="rounded-full pl-0 hover:bg-transparent">
+          <Link href={`/app/${courseIdFromEdit}`}>
+            <ArrowLeft className="size-4" />
+            {labels?.backToCourse ?? 'Back to Course'}
           </Link>
         </Button>
       ) : isCourseNewPage ? (
         <Button asChild variant="ghost" className="rounded-full pl-0 hover:bg-transparent">
-          <Link href="/app/courses">
+          <Link href="/app">
             <ArrowLeft className="size-4" />
-            Back to Courses
+            {labels?.backToCourses ?? 'Back to Courses'}
           </Link>
         </Button>
       ) : isCoursePage ? (
         <Button asChild variant="ghost" className="rounded-full pl-0 hover:bg-transparent">
-          <Link href="/app/courses">
+          <Link href="/app">
             <ArrowLeft className="size-4" />
-            Back to Courses
+            {labels?.backToCourses ?? 'Back to Courses'}
           </Link>
         </Button>
       ) : isCoursesListPage ? (

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { CheckCircle2, Circle } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 
 import { auth } from '@/auth';
 import { deleteCourseAction, toggleLessonProgressAction } from '@/app/app/courses/actions';
@@ -31,6 +32,7 @@ function formatProgress(total: number, completed: number) {
 
 export default async function CourseDetailsPage({ params }: CourseDetailsPageProps) {
   const session = await auth();
+  const t = await getTranslations('CourseDetailsPage');
   const { id } = await params;
   const userId = session?.user?.id;
 
@@ -69,18 +71,27 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
         title={course.title}
         description={course.description ?? course.goal}
         actions={
-          <DeleteCourseButton action={deleteCourseAction.bind(null, course.id)}>
-            Delete Course
+          <DeleteCourseButton
+            action={deleteCourseAction.bind(null, course.id)}
+            labels={{
+              title: t('deleteDialogTitle'),
+              description: t('deleteDialogDescription'),
+              cancel: t('cancel'),
+              confirm: t('deleteCourse'),
+              pending: t('deletingCourse'),
+            }}
+          >
+            {t('deleteCourse')}
           </DeleteCourseButton>
         }
       />
 
-      <section className="mx-auto w-full max-w-5xl space-y-8">
+      <section className="w-full space-y-8">
         <Card className="border-border/70 rounded-[2rem] shadow-none">
           <CardContent className="grid gap-6 py-6">
             <div className="grid gap-2">
               <p className="text-muted-foreground text-xs font-medium tracking-[0.14em] uppercase">
-                Goal
+                {t('goal')}
               </p>
               <p className="text-sm leading-7">{course.goal}</p>
             </div>
@@ -88,27 +99,32 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
             <div className="grid gap-4 md:grid-cols-3">
               <div className="rounded-2xl border px-4 py-4">
                 <p className="text-muted-foreground text-xs font-medium tracking-[0.14em] uppercase">
-                  Progress
+                  {t('progress')}
                 </p>
                 <p className="mt-2 text-2xl font-semibold">{completionPercentage}%</p>
                 <p className="text-muted-foreground mt-1 text-sm">
-                  {completedLessons} of {totalLessons} lessons completed
+                  {t('lessonsCompleted', {
+                    completed: completedLessons,
+                    total: totalLessons,
+                  })}
                 </p>
               </div>
 
               <div className="rounded-2xl border px-4 py-4">
                 <p className="text-muted-foreground text-xs font-medium tracking-[0.14em] uppercase">
-                  Level
+                  {t('level')}
                 </p>
-                <p className="mt-2 text-lg font-medium">{course.level ?? 'Not specified'}</p>
+                <p className="mt-2 text-lg font-medium">{course.level ?? t('notSpecified')}</p>
               </div>
 
               <div className="rounded-2xl border px-4 py-4">
                 <p className="text-muted-foreground text-xs font-medium tracking-[0.14em] uppercase">
-                  Duration
+                  {t('duration')}
                 </p>
                 <p className="mt-2 text-lg font-medium">
-                  {course.estimatedWeeks ? `${course.estimatedWeeks} weeks` : 'Flexible'}
+                  {course.estimatedWeeks
+                    ? t('weeks', { count: course.estimatedWeeks })
+                    : t('flexible')}
                 </p>
               </div>
             </div>
@@ -121,7 +137,7 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
               <section key={module.id} className="space-y-4">
                 <div className="space-y-2">
                   <p className="text-muted-foreground text-xs font-medium tracking-[0.14em] uppercase">
-                    Module {module.position}
+                    {t('module')} {module.position}
                   </p>
                   <h2 className="text-2xl font-semibold tracking-tight">{module.title}</h2>
                   {module.description ? (
@@ -129,7 +145,7 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
                   ) : null}
                   {module.estimatedMinutes ? (
                     <p className="text-muted-foreground text-sm">
-                      {module.estimatedMinutes} minutes
+                      {t('minutes', { count: module.estimatedMinutes })}
                     </p>
                   ) : null}
                 </div>
@@ -144,7 +160,7 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
                           <div className="min-w-0 space-y-2">
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="text-muted-foreground text-xs font-medium tracking-[0.14em] uppercase">
-                                Lesson {lesson.position}
+                                {t('lesson')} {lesson.position}
                               </span>
                               <span className="text-muted-foreground text-xs">•</span>
                               <span
@@ -159,12 +175,12 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
                                 ) : (
                                   <Circle className="size-3.5" />
                                 )}
-                                {isCompleted ? 'Completed' : 'Not completed'}
+                                {isCompleted ? t('completed') : t('notCompleted')}
                               </span>
                             </div>
 
                             <Link
-                              href={`/app/courses/${course.id}/lessons/${lesson.id}`}
+                              href={`/app/${course.id}/lessons/${lesson.id}`}
                               className="hover:text-primary block text-lg font-medium transition-colors"
                             >
                               {lesson.title}
@@ -178,15 +194,15 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
 
                             {lesson.estimatedMinutes ? (
                               <p className="text-muted-foreground text-sm">
-                                {lesson.estimatedMinutes} minutes
+                                {t('minutes', { count: lesson.estimatedMinutes })}
                               </p>
                             ) : null}
                           </div>
 
                           <div className="flex flex-wrap gap-2">
                             <Button asChild variant="secondary" className="rounded-full">
-                              <Link href={`/app/courses/${course.id}/lessons/${lesson.id}`}>
-                                Open lesson
+                              <Link href={`/app/${course.id}/lessons/${lesson.id}`}>
+                                {t('openLesson')}
                               </Link>
                             </Button>
                             <ConfirmSubmitButton
@@ -198,15 +214,16 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
                               )}
                               title={
                                 isCompleted
-                                  ? 'Mark this lesson as not completed?'
-                                  : 'Mark this lesson as completed?'
+                                  ? t('markLessonIncompleteTitle')
+                                  : t('markLessonCompleteTitle')
                               }
-                              description="You can change this again later."
+                              description={t('markLessonDescription')}
                               className="rounded-full"
                               variant="outline"
-                              confirmLabel={isCompleted ? 'Mark incomplete' : 'Mark complete'}
+                              confirmLabel={isCompleted ? t('markIncomplete') : t('markComplete')}
+                              cancelLabel={t('cancel')}
                             >
-                              {isCompleted ? 'Mark incomplete' : 'Mark complete'}
+                              {isCompleted ? t('markIncomplete') : t('markComplete')}
                             </ConfirmSubmitButton>
                           </div>
                         </CardContent>
@@ -218,7 +235,7 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
             ))}
           </section>
         ) : (
-          <EmptyState title="No modules yet" description="This course does not have modules yet." />
+          <EmptyState title={t('noModulesTitle')} description={t('noModulesDescription')} />
         )}
       </section>
     </PageContainer>

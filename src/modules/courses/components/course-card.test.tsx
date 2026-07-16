@@ -22,10 +22,7 @@ describe('CourseCard', () => {
     expect(screen.getByText('React Foundations')).toBeInTheDocument();
     expect(screen.getByText('Become job-ready with React.')).toBeInTheDocument();
     expect(screen.getByText('A practical React path.')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /open/i })).toHaveAttribute(
-      'href',
-      '/app/courses/course-1'
-    );
+    expect(screen.getByRole('link', { name: /open/i })).toHaveAttribute('href', '/app/course-1');
     expect(screen.getByText(/level: beginner/i)).toBeInTheDocument();
     expect(screen.getByText(/8 weeks/i)).toBeInTheDocument();
   });

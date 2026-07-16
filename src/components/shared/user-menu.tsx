@@ -11,6 +11,14 @@ import { SubmitButton } from '@/components/ui/submit-button';
 import { cn } from '@/lib/utils';
 
 type UserMenuProps = {
+  labels?: {
+    openUserMenu?: string;
+    signedInUser?: string;
+    signOut?: string;
+    signingOut?: string;
+    toggleTheme?: string;
+  };
+  localeSwitcher?: React.ReactNode;
   userLabel?: string | null;
   userEmail?: string | null;
   signOutAction: () => void | Promise<void>;
@@ -31,7 +39,13 @@ function getFallbackLabel(userLabel?: string | null) {
   return initials || 'BC';
 }
 
-export function UserMenu({ signOutAction, userEmail, userLabel }: UserMenuProps) {
+export function UserMenu({
+  labels,
+  localeSwitcher,
+  signOutAction,
+  userEmail,
+  userLabel,
+}: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -61,18 +75,20 @@ export function UserMenu({ signOutAction, userEmail, userLabel }: UserMenuProps)
             <ThemeToggle
               variant="ghost"
               size="default"
-              label="Toggle theme"
+              label={labels?.toggleTheme ?? 'Alternar tema'}
+              ariaLabel={labels?.toggleTheme ?? 'Alternar tema'}
               className="w-full justify-start rounded-xl"
             />
+            {localeSwitcher}
 
             <form action={signOutAction}>
               <SubmitButton
                 variant="ghost"
                 className="w-full justify-start rounded-xl"
                 idleIcon={<LogOut className="size-4" />}
-                pendingLabel="Signing out..."
+                pendingLabel={labels?.signingOut ?? 'Signing out...'}
               >
-                Sign out
+                {labels?.signOut ?? 'Sign out'}
               </SubmitButton>
             </form>
           </CardContent>
@@ -85,7 +101,7 @@ export function UserMenu({ signOutAction, userEmail, userLabel }: UserMenuProps)
           'hover:bg-accent flex items-center gap-3 rounded-full border px-2.5 py-1.5 text-left transition-colors',
           isOpen && 'bg-accent'
         )}
-        aria-label="Open user menu"
+        aria-label={labels?.openUserMenu ?? 'Open user menu'}
         aria-expanded={isOpen}
         onClick={() => setIsOpen((current) => !current)}
       >
@@ -94,7 +110,9 @@ export function UserMenu({ signOutAction, userEmail, userLabel }: UserMenuProps)
         </Avatar>
 
         <div className="hidden min-w-0 sm:block">
-          <p className="max-w-36 truncate text-sm font-medium">{userLabel ?? 'Signed in user'}</p>
+          <p className="max-w-36 truncate text-sm font-medium">
+            {userLabel ?? labels?.signedInUser ?? 'Signed in user'}
+          </p>
           <p className="text-muted-foreground max-w-36 truncate text-xs">{userEmail}</p>
         </div>
       </button>

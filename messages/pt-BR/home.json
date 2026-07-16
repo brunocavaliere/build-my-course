@@ -1,0 +1,24 @@
+{
+  "Home": {
+    "openDashboard": "Abrir dashboard",
+    "signIn": "Entrar",
+    "eyebrow": "Trilhas personalizadas de aprendizado",
+    "seeCourseSetup": "Ver configuração do curso",
+    "openLogin": "Abrir login",
+    "featureTitle": "Monte um curso a partir do objetivo",
+    "featureDescription": "Exemplo de objetivo: \"Quero aprender React para conseguir uma vaga frontend\"",
+    "feature1": "Módulos estruturados com aulas",
+    "feature2": "Exercícios e quizzes em cada etapa",
+    "feature3": "Recursos curados de acordo com seu objetivo",
+    "howItWorksEyebrow": "Como funciona",
+    "howItWorksTitle": "Do objetivo ao curso guiado",
+    "step1": "Etapa 1",
+    "step1Title": "Descreva o que você quer aprender",
+    "step2": "Etapa 2",
+    "step2Title": "Receba uma trilha personalizada",
+    "step3": "Etapa 3",
+    "step3Title": "Aprenda no seu ritmo",
+    "signInWithGoogle": "Entrar com Google",
+    "signInWithGitHub": "Entrar com GitHub"
+  }
+}

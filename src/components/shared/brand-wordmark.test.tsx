@@ -7,7 +7,7 @@ describe('BrandWordmark', () => {
     render(<BrandWordmark />);
 
     const link = screen.getByRole('link', { name: /build my course/i });
-    expect(link).toHaveAttribute('href', '/app/courses');
+    expect(link).toHaveAttribute('href', '/app');
     expect(link).toHaveTextContent('BuildMy Course');
   });
 

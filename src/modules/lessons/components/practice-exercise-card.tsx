@@ -11,23 +11,38 @@ import type { LessonPracticeExercise } from '@/modules/courses/types';
 type PracticeExerciseCardProps = {
   exercise: LessonPracticeExercise;
   index: number;
+  labels?: {
+    exercise?: string;
+    multipleChoice?: string;
+    appliedTask?: string;
+    reflection?: string;
+    shortAnswer?: string;
+    checkAnswer?: string;
+    correct?: string;
+    incorrect?: string;
+    explanation?: string;
+    answerGuidance?: string;
+  };
 };
 
-function getExerciseTypeLabel(type: LessonPracticeExercise['type']) {
+function getExerciseTypeLabel(
+  type: LessonPracticeExercise['type'],
+  labels?: PracticeExerciseCardProps['labels']
+) {
   switch (type) {
     case 'multiple_choice':
-      return 'Multiple Choice';
+      return labels?.multipleChoice ?? 'Multiple Choice';
     case 'applied_task':
-      return 'Applied Task';
+      return labels?.appliedTask ?? 'Applied Task';
     case 'reflection':
-      return 'Reflection';
+      return labels?.reflection ?? 'Reflection';
     case 'short_answer':
     default:
-      return 'Short Answer';
+      return labels?.shortAnswer ?? 'Short Answer';
   }
 }
 
-export function PracticeExerciseCard({ exercise, index }: PracticeExerciseCardProps) {
+export function PracticeExerciseCard({ exercise, index, labels }: PracticeExerciseCardProps) {
   const multipleChoiceOptions = exercise.type === 'multiple_choice' ? exercise.options : null;
   const isMultipleChoice =
     exercise.type === 'multiple_choice' &&
@@ -47,8 +62,10 @@ export function PracticeExerciseCard({ exercise, index }: PracticeExerciseCardPr
     <Card className="border-border/70 rounded-[2rem] shadow-none">
       <CardHeader className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary">{getExerciseTypeLabel(exercise.type)}</Badge>
-          <span className="text-muted-foreground text-xs">Exercise {index + 1}</span>
+          <Badge variant="secondary">{getExerciseTypeLabel(exercise.type, labels)}</Badge>
+          <span className="text-muted-foreground text-xs">
+            {labels?.exercise ?? 'Exercise'} {index + 1}
+          </span>
         </div>
         <CardTitle className="text-xl">{exercise.title}</CardTitle>
       </CardHeader>
@@ -96,7 +113,7 @@ export function PracticeExerciseCard({ exercise, index }: PracticeExerciseCardPr
                 disabled={selectedOptionIndex === null}
                 onClick={() => setHasCheckedAnswer(true)}
               >
-                Check answer
+                {labels?.checkAnswer ?? 'Check answer'}
               </Button>
 
               {hasCheckedAnswer ? (
@@ -106,7 +123,9 @@ export function PracticeExerciseCard({ exercise, index }: PracticeExerciseCardPr
                     isCorrect ? 'text-emerald-400' : 'text-destructive'
                   )}
                 >
-                  {isCorrect ? 'Correct answer.' : 'Incorrect answer.'}
+                  {isCorrect
+                    ? (labels?.correct ?? 'Correct answer.')
+                    : (labels?.incorrect ?? 'Incorrect answer.')}
                 </p>
               ) : null}
             </div>
@@ -116,7 +135,9 @@ export function PracticeExerciseCard({ exercise, index }: PracticeExerciseCardPr
         {exercise.answerGuidance ? (
           <div className="bg-muted/50 rounded-2xl px-4 py-3">
             <p className="text-sm font-medium">
-              {isMultipleChoice && hasCheckedAnswer ? 'Explanation' : 'What good looks like'}
+              {isMultipleChoice && hasCheckedAnswer
+                ? (labels?.explanation ?? 'Explanation')
+                : (labels?.answerGuidance ?? 'What good looks like')}
             </p>
             <p className="text-muted-foreground mt-1 text-sm leading-6">
               {exercise.answerGuidance}

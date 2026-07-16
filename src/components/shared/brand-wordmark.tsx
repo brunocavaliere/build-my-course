@@ -7,7 +7,7 @@ type BrandWordmarkProps = {
   href?: string | null;
 };
 
-export function BrandWordmark({ className, href = '/app/courses' }: BrandWordmarkProps) {
+export function BrandWordmark({ className, href = '/app' }: BrandWordmarkProps) {
   const content = (
     <span
       aria-label="Build My Course"

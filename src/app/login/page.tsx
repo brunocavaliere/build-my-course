@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 
 import { ShieldCheck } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 
 import { auth, isAuthReady, isGitHubAuthConfigured, isGoogleAuthConfigured } from '@/auth';
 import { SignInButton } from '@/components/shared/auth-buttons';
@@ -11,6 +12,8 @@ import { brand } from '@/lib/brand';
 
 export default async function LoginPage() {
   const session = await auth();
+  const t = await getTranslations('Login');
+  const brandT = await getTranslations('Brand');
 
   if (session?.user) {
     redirect('/app');
@@ -23,13 +26,11 @@ export default async function LoginPage() {
           <BrandWordmark href="/" />
           <div className="space-y-2">
             <CardTitle className="text-3xl">{brand.name}</CardTitle>
-            <CardDescription className="text-sm leading-6">{brand.tagline}</CardDescription>
+            <CardDescription className="text-sm leading-6">{brandT('tagline')}</CardDescription>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-muted-foreground text-sm leading-6">
-            Sign in to access your private dashboard and manage personalized courses.
-          </p>
+          <p className="text-muted-foreground text-sm leading-6">{t('description')}</p>
 
           {isAuthReady ? (
             <div className="space-y-3">
@@ -37,14 +38,14 @@ export default async function LoginPage() {
                 <SignInButton
                   provider="google"
                   className="w-full rounded-full"
-                  label="Sign in with Google"
+                  label={t('signInWithGoogle')}
                 />
               ) : null}
               {isGitHubAuthConfigured ? (
                 <SignInButton
                   provider="github"
                   className="w-full rounded-full"
-                  label="Sign in with GitHub"
+                  label={t('signInWithGitHub')}
                 />
               ) : null}
             </div>
@@ -52,14 +53,11 @@ export default async function LoginPage() {
             <div className="bg-muted/50 space-y-3 rounded-2xl p-4">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <ShieldCheck className="size-4" />
-                Auth configuration required
+                {t('authRequired')}
               </div>
-              <p className="text-muted-foreground text-sm leading-6">
-                Define `DATABASE_URL`, `AUTH_SECRET` and at least one OAuth provider pair:
-                `AUTH_GITHUB_ID` + `AUTH_GITHUB_SECRET` or `AUTH_GOOGLE_ID` + `AUTH_GOOGLE_SECRET`.
-              </p>
+              <p className="text-muted-foreground text-sm leading-6">{t('authHelp')}</p>
               <Button disabled className="w-full rounded-full">
-                Sign in
+                {t('signIn')}
               </Button>
             </div>
           )}

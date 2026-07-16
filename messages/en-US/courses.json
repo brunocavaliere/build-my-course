@@ -1,0 +1,66 @@
+{
+  "CoursesPage": {
+    "title": "Courses",
+    "description": "Browse and manage personalized learning paths.",
+    "emptyTitle": "No courses yet",
+    "emptyDescription": "Create your first manual course to start shaping the learning path.",
+    "generateFirstCourse": "Generate first course"
+  },
+  "CourseCard": {
+    "open": "Open",
+    "level": "Level",
+    "weeks": "{count} weeks",
+    "created": "Created {date}"
+  },
+  "NewCoursePage": {
+    "title": "What do you want to learn?",
+    "description": "Describe your goal and Build My Course will generate a personalized course with modules and lessons.",
+    "backToCourses": "Back to Courses",
+    "cardTitle": "Generate with AI",
+    "cardDescription": "Example: \"I want to learn React to get a frontend job.\"",
+    "cancel": "Cancel"
+  },
+  "GenerateCourseForm": {
+    "goalLabel": "Learning goal",
+    "goalPlaceholder": "I want to learn React well enough to get a frontend job.",
+    "levelLabel": "Level",
+    "levelPlaceholder": "Select a level",
+    "weeksLabel": "Estimated weeks",
+    "weeksPlaceholder": "6",
+    "submit": "Generate course",
+    "submitting": "Creating your learning path...",
+    "levels": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    }
+  },
+  "CourseDetailsPage": {
+    "deleteDialogTitle": "Are you sure you want to delete this course?",
+    "deleteDialogDescription": "This action cannot be undone.",
+    "deleteCourse": "Delete course",
+    "deletingCourse": "Deleting course...",
+    "cancel": "Cancel",
+    "goal": "Goal",
+    "progress": "Progress",
+    "lessonsCompleted": "{completed} of {total} lessons completed",
+    "level": "Level",
+    "notSpecified": "Not specified",
+    "duration": "Duration",
+    "weeks": "{count} weeks",
+    "flexible": "Flexible",
+    "module": "Module",
+    "lesson": "Lesson",
+    "minutes": "{count} minutes",
+    "completed": "Completed",
+    "notCompleted": "Not completed",
+    "openLesson": "Open lesson",
+    "markLessonCompleteTitle": "Mark this lesson as completed?",
+    "markLessonIncompleteTitle": "Mark this lesson as not completed?",
+    "markLessonDescription": "You can change this again later.",
+    "markComplete": "Mark complete",
+    "markIncomplete": "Mark incomplete",
+    "noModulesTitle": "No modules yet",
+    "noModulesDescription": "This course does not have modules yet."
+  }
+}

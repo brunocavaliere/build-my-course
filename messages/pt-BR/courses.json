@@ -1,0 +1,66 @@
+{
+  "CoursesPage": {
+    "title": "Cursos",
+    "description": "Navegue e gerencie trilhas personalizadas de aprendizado.",
+    "emptyTitle": "Nenhum curso ainda",
+    "emptyDescription": "Crie seu primeiro curso manual para começar a montar a trilha de aprendizado.",
+    "generateFirstCourse": "Gerar primeiro curso"
+  },
+  "CourseCard": {
+    "open": "Abrir",
+    "level": "Nível",
+    "weeks": "{count} semanas",
+    "created": "Criado em {date}"
+  },
+  "NewCoursePage": {
+    "title": "O que você quer aprender?",
+    "description": "Descreva seu objetivo e o Build My Course vai gerar um curso personalizado com módulos e aulas.",
+    "backToCourses": "Voltar para cursos",
+    "cardTitle": "Gerar com IA",
+    "cardDescription": "Exemplo: \"Quero aprender React para conseguir uma vaga frontend.\"",
+    "cancel": "Cancelar"
+  },
+  "GenerateCourseForm": {
+    "goalLabel": "Objetivo de aprendizado",
+    "goalPlaceholder": "Quero aprender React bem o suficiente para conseguir uma vaga frontend.",
+    "levelLabel": "Nível",
+    "levelPlaceholder": "Selecione um nível",
+    "weeksLabel": "Semanas estimadas",
+    "weeksPlaceholder": "6",
+    "submit": "Gerar curso",
+    "submitting": "Criando sua trilha de aprendizado...",
+    "levels": {
+      "beginner": "Iniciante",
+      "intermediate": "Intermediário",
+      "advanced": "Avançado"
+    }
+  },
+  "CourseDetailsPage": {
+    "deleteDialogTitle": "Tem certeza que deseja excluir este curso?",
+    "deleteDialogDescription": "Essa ação não pode ser desfeita.",
+    "deleteCourse": "Excluir curso",
+    "deletingCourse": "Excluindo curso...",
+    "cancel": "Cancelar",
+    "goal": "Objetivo",
+    "progress": "Progresso",
+    "lessonsCompleted": "{completed} de {total} aulas concluídas",
+    "level": "Nível",
+    "notSpecified": "Não informado",
+    "duration": "Duração",
+    "weeks": "{count} semanas",
+    "flexible": "Flexível",
+    "module": "Módulo",
+    "lesson": "Aula",
+    "minutes": "{count} minutos",
+    "completed": "Concluída",
+    "notCompleted": "Não concluída",
+    "openLesson": "Abrir aula",
+    "markLessonCompleteTitle": "Marcar esta aula como concluída?",
+    "markLessonIncompleteTitle": "Marcar esta aula como não concluída?",
+    "markLessonDescription": "Você pode alterar isso novamente depois.",
+    "markComplete": "Marcar como concluída",
+    "markIncomplete": "Marcar como não concluída",
+    "noModulesTitle": "Nenhum módulo ainda",
+    "noModulesDescription": "Este curso ainda não possui módulos."
+  }
+}
