@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-import { BookOpenText, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 import { auth } from '@/auth';
 import { CourseCard } from '@/modules/courses/components/course-card';
@@ -32,7 +32,6 @@ export default async function CoursesPage() {
         <EmptyState
           title="No courses yet"
           description="Create your first manual course to start shaping the learning path."
-          icon={<BookOpenText className="size-5" />}
           action={
             <Button asChild className="rounded-full">
               <Link href="/app/courses/new">

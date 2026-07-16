@@ -6,12 +6,11 @@ import { LogOut } from 'lucide-react';
 
 import { ThemeToggle } from '@/components/shared/theme-toggle';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { SubmitButton } from '@/components/ui/submit-button';
 import { cn } from '@/lib/utils';
 
-type SidebarUserMenuProps = {
+type UserMenuProps = {
   userLabel?: string | null;
   userEmail?: string | null;
   signOutAction: () => void | Promise<void>;
@@ -19,7 +18,7 @@ type SidebarUserMenuProps = {
 
 function getFallbackLabel(userLabel?: string | null) {
   if (!userLabel) {
-    return 'BM';
+    return 'BC';
   }
 
   const initials = userLabel
@@ -29,10 +28,10 @@ function getFallbackLabel(userLabel?: string | null) {
     .map((part) => part[0]?.toUpperCase() ?? '')
     .join('');
 
-  return initials || 'BM';
+  return initials || 'BC';
 }
 
-export function SidebarUserMenu({ signOutAction, userEmail, userLabel }: SidebarUserMenuProps) {
+export function UserMenu({ signOutAction, userEmail, userLabel }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -57,7 +56,7 @@ export function SidebarUserMenu({ signOutAction, userEmail, userLabel }: Sidebar
   return (
     <div ref={containerRef} className="relative">
       {isOpen ? (
-        <Card className="bg-background border-border/70 absolute right-0 bottom-full z-50 mb-2 w-56 rounded-2xl py-2 shadow-lg">
+        <Card className="bg-background border-border/70 absolute top-full right-0 z-50 mt-2 w-56 rounded-2xl py-2 shadow-lg">
           <CardContent className="space-y-1 px-2">
             <ThemeToggle
               variant="ghost"
@@ -80,27 +79,25 @@ export function SidebarUserMenu({ signOutAction, userEmail, userLabel }: Sidebar
         </Card>
       ) : null}
 
-      <Card className="bg-muted/40 border-border/70 rounded-2xl py-0 shadow-none">
-        <button
-          type="button"
-          className={cn(
-            'hover:bg-accent flex w-full cursor-pointer items-center gap-3 rounded-2xl px-4 py-3 text-left transition-colors',
-            isOpen && 'bg-accent'
-          )}
-          aria-label="Open user menu"
-          aria-expanded={isOpen}
-          onClick={() => setIsOpen((current) => !current)}
-        >
-          <Avatar>
-            <AvatarFallback>{getFallbackLabel(userLabel)}</AvatarFallback>
-          </Avatar>
+      <button
+        type="button"
+        className={cn(
+          'hover:bg-accent flex items-center gap-3 rounded-full border px-2.5 py-1.5 text-left transition-colors',
+          isOpen && 'bg-accent'
+        )}
+        aria-label="Open user menu"
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen((current) => !current)}
+      >
+        <Avatar className="size-8">
+          <AvatarFallback>{getFallbackLabel(userLabel)}</AvatarFallback>
+        </Avatar>
 
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">{userLabel ?? 'Signed in user'}</p>
-            <p className="text-muted-foreground truncate text-xs">{userEmail}</p>
-          </div>
-        </button>
-      </Card>
+        <div className="hidden min-w-0 sm:block">
+          <p className="max-w-36 truncate text-sm font-medium">{userLabel ?? 'Signed in user'}</p>
+          <p className="text-muted-foreground max-w-36 truncate text-xs">{userEmail}</p>
+        </div>
+      </button>
     </div>
   );
 }

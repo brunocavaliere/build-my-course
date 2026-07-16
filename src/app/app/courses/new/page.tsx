@@ -21,7 +21,7 @@ export default async function NewCoursePage({ searchParams }: NewCoursePageProps
     <PageContainer>
       <PageHeader
         title="What do you want to learn?"
-        description="Describe your goal and BuildMyCourse will generate a personalized course with modules and lessons."
+        description="Describe your goal and Build My Course will generate a personalized course with modules and lessons."
         actions={
           <Button asChild variant="outline" className="rounded-full">
             <Link href="/app/courses">

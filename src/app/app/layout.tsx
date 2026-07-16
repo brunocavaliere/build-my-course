@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 import { Sparkles } from 'lucide-react';
 
 import { auth, signOut } from '@/auth';
-import { AppHeader, AppShell, AppSidebar } from '@/components/shared';
+import { AppHeader, AppShell, UserMenu } from '@/components/shared';
 import { Button } from '@/components/ui/button';
 
 export default async function AppLayout({ children }: PropsWithChildren) {
@@ -16,7 +16,7 @@ export default async function AppLayout({ children }: PropsWithChildren) {
     redirect('/login');
   }
 
-  const userLabel = session.user.name ?? session.user.email ?? 'BuildMyCourse user';
+  const userLabel = session.user.name ?? session.user.email ?? 'Build My Course user';
   const signOutAction = async () => {
     'use server';
     await signOut({ redirectTo: '/' });
@@ -24,13 +24,6 @@ export default async function AppLayout({ children }: PropsWithChildren) {
 
   return (
     <AppShell
-      sidebar={
-        <AppSidebar
-          userLabel={userLabel}
-          userEmail={session.user.email}
-          signOutAction={signOutAction}
-        />
-      }
       header={
         <AppHeader
           actions={
@@ -40,6 +33,13 @@ export default async function AppLayout({ children }: PropsWithChildren) {
                 Generate Course
               </Link>
             </Button>
+          }
+          userMenu={
+            <UserMenu
+              userLabel={userLabel}
+              userEmail={session.user.email}
+              signOutAction={signOutAction}
+            />
           }
         />
       }

@@ -5,19 +5,22 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { ArrowLeft, BookOpenText } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
+import { BrandWordmark } from '@/components/shared/brand-wordmark';
 import { Button } from '@/components/ui/button';
-import { brand } from '@/lib/brand';
 import { cn } from '@/lib/utils';
 
 type AppHeaderProps = {
   actions?: ReactNode;
   className?: string;
+  userMenu?: ReactNode;
 };
 
-export function AppHeader({ actions, className }: AppHeaderProps) {
+export function AppHeader({ actions, className, userMenu }: AppHeaderProps) {
   const pathname = usePathname();
+  const isCoursesListPage = pathname === '/app/courses';
+  const isCourseNewPage = pathname === '/app/courses/new';
   const isCoursePage = /^\/app\/courses\/[^/]+$/.test(pathname);
   const lessonMatch = pathname.match(/^\/app\/courses\/([^/]+)\/lessons\/[^/]+$/);
   const courseIdFromLesson = lessonMatch?.[1] ?? null;
@@ -25,40 +28,36 @@ export function AppHeader({ actions, className }: AppHeaderProps) {
   return (
     <div className={cn('flex min-w-0 items-center gap-3', className)}>
       {courseIdFromLesson ? (
-        <Button
-          asChild
-          variant="ghost"
-          className="hidden rounded-full pl-0 hover:bg-transparent md:inline-flex"
-        >
+        <Button asChild variant="ghost" className="rounded-full pl-0 hover:bg-transparent">
           <Link href={`/app/courses/${courseIdFromLesson}`}>
             <ArrowLeft className="size-4" />
             Back to Course
           </Link>
         </Button>
-      ) : isCoursePage ? (
-        <Button
-          asChild
-          variant="ghost"
-          className="hidden rounded-full pl-0 hover:bg-transparent md:inline-flex"
-        >
+      ) : isCourseNewPage ? (
+        <Button asChild variant="ghost" className="rounded-full pl-0 hover:bg-transparent">
           <Link href="/app/courses">
             <ArrowLeft className="size-4" />
             Back to Courses
           </Link>
         </Button>
+      ) : isCoursePage ? (
+        <Button asChild variant="ghost" className="rounded-full pl-0 hover:bg-transparent">
+          <Link href="/app/courses">
+            <ArrowLeft className="size-4" />
+            Back to Courses
+          </Link>
+        </Button>
+      ) : isCoursesListPage ? (
+        <BrandWordmark />
       ) : (
-        <div className="hidden min-w-0 items-center gap-3 md:flex">
-          <div className="bg-foreground text-background flex size-10 items-center justify-center rounded-2xl">
-            <BookOpenText className="size-4" />
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold">{brand.name}</p>
-            <p className="text-muted-foreground text-xs">{brand.tagline}</p>
-          </div>
-        </div>
+        <BrandWordmark />
       )}
 
-      <div className="ml-auto flex items-center gap-2">{actions}</div>
+      <div className="ml-auto flex items-center gap-2">
+        {actions}
+        {userMenu}
+      </div>
     </div>
   );
 }

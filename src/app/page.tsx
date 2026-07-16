@@ -1,9 +1,10 @@
 import Link from 'next/link';
 
-import { ArrowRight, BookOpenText, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 
 import { auth, isAuthReady, isGitHubAuthConfigured, isGoogleAuthConfigured } from '@/auth';
 import { SignInButton } from '@/components/shared/auth-buttons';
+import { BrandWordmark } from '@/components/shared/brand-wordmark';
 import { PageContainer } from '@/components/shared';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,15 +17,7 @@ export default async function Home() {
     <main className="min-h-screen">
       <PageContainer className="mx-auto w-full max-w-6xl gap-16 py-8 sm:py-10">
         <header className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="bg-foreground text-background flex size-10 items-center justify-center rounded-2xl">
-              <BookOpenText className="size-4" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold">{brand.name}</p>
-              <p className="text-muted-foreground text-xs">AI course builder</p>
-            </div>
-          </div>
+          <BrandWordmark href="/" />
 
           {session?.user ? (
             <Button asChild variant="outline" className="rounded-full">

@@ -10,7 +10,7 @@ export default function NotFound() {
     <main className="mx-auto flex min-h-screen w-full max-w-5xl items-center px-4 py-10 sm:px-6">
       <EmptyState
         title="Page not found"
-        description="This route does not exist in BuildMyCourse yet."
+        description="This route does not exist in Build My Course yet."
         icon={<Compass className="size-5" />}
         className="w-full"
         action={

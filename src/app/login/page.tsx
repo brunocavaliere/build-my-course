@@ -1,9 +1,10 @@
 import { redirect } from 'next/navigation';
 
-import { BookOpenText, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 
 import { auth, isAuthReady, isGitHubAuthConfigured, isGoogleAuthConfigured } from '@/auth';
 import { SignInButton } from '@/components/shared/auth-buttons';
+import { BrandWordmark } from '@/components/shared/brand-wordmark';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { brand } from '@/lib/brand';
@@ -19,9 +20,7 @@ export default async function LoginPage() {
     <main className="flex min-h-screen items-center justify-center px-4 py-10">
       <Card className="w-full max-w-md rounded-[2rem] border shadow-none">
         <CardHeader className="space-y-4">
-          <div className="bg-foreground text-background flex size-12 items-center justify-center rounded-2xl">
-            <BookOpenText className="size-5" />
-          </div>
+          <BrandWordmark href="/" />
           <div className="space-y-2">
             <CardTitle className="text-3xl">{brand.name}</CardTitle>
             <CardDescription className="text-sm leading-6">{brand.tagline}</CardDescription>

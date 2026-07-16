@@ -1,6 +1,6 @@
 export { AppHeader } from '@/components/shared/app-header';
 export { AppShell } from '@/components/shared/app-shell';
-export { AppSidebar } from '@/components/shared/app-sidebar';
+export { BrandWordmark } from '@/components/shared/brand-wordmark';
 export { EmptyState } from '@/components/shared/empty-state';
 export { ErrorState } from '@/components/shared/error-state';
 export { LoadingState } from '@/components/shared/loading-state';
@@ -8,3 +8,4 @@ export { PageContainer } from '@/components/shared/page-container';
 export { PageHeader } from '@/components/shared/page-header';
 export { RoutePlaceholder } from '@/components/shared/route-placeholder';
 export { ThemeToggle } from '@/components/shared/theme-toggle';
+export { UserMenu } from '@/components/shared/user-menu';
