@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
-import { CheckCircle2, Circle } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 
 import { auth } from '@/auth';
@@ -12,8 +12,10 @@ import {
 } from '@/app/app/courses/actions';
 import { MarkdownContent } from '@/components/shared/markdown-content';
 import { EmptyState, PageContainer, PageHeader } from '@/components/shared';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { LessonContentBlocks } from '@/modules/lessons/components/lesson-content-blocks';
 import { ConfirmSubmitButton } from '@/modules/courses/components/confirm-submit-button';
 import { getLessonDetailByIdsForUser } from '@/modules/courses/queries';
 import { LessonContentActionForm } from '@/modules/lessons/components/lesson-content-action-button';
@@ -34,6 +36,7 @@ type LessonDetailsPageProps = {
 export default async function LessonDetailsPage({ params, searchParams }: LessonDetailsPageProps) {
   const session = await auth();
   const t = await getTranslations('LessonDetailsPage');
+  const headerT = await getTranslations('AppHeader');
 
   if (!session?.user?.id) {
     redirect('/login');
@@ -51,12 +54,20 @@ export default async function LessonDetailsPage({ params, searchParams }: Lesson
   const { lesson, progress } = lessonDetail;
   const isCompleted = Boolean(progress?.completed);
   const lessonContent = lesson.content?.trim() || null;
+  const lessonContentBlocks = lesson.contentBlocks ?? [];
   const practiceExercises = lesson.practiceExercises ?? [];
   const generationError: string | null = aiError ?? null;
   const practiceGenerationError: string | null = practiceError ?? null;
 
   return (
     <PageContainer>
+      <Button asChild variant="ghost" className="w-fit rounded-full pl-0 hover:bg-transparent">
+        <Link href={`/app/${courseId}`}>
+          <ArrowLeft className="size-4" />
+          {headerT('backToCourse')}
+        </Link>
+      </Button>
+
       <PageHeader
         title={lesson.title}
         description={lesson.description ?? t('descriptionFallback')}
@@ -144,6 +155,8 @@ export default async function LessonDetailsPage({ params, searchParams }: Lesson
                   <div className="text-destructive bg-destructive/10 rounded-2xl px-4 py-3 text-sm">
                     {generationError}
                   </div>
+                ) : lessonContentBlocks.length ? (
+                  <LessonContentBlocks blocks={lessonContentBlocks} />
                 ) : lessonContent ? (
                   <MarkdownContent content={lessonContent} className="space-y-6" />
                 ) : (

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { ArrowLeft } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 
 import { auth } from '@/auth';
 import { updateCourseAction } from '@/app/app/courses/actions';
@@ -21,6 +22,7 @@ type EditCoursePageProps = {
 
 export default async function EditCoursePage({ params, searchParams }: EditCoursePageProps) {
   const session = await auth();
+  const headerT = await getTranslations('AppHeader');
   const { id } = await params;
   const { error } = await searchParams;
   const userId = session?.user?.id;
@@ -37,18 +39,14 @@ export default async function EditCoursePage({ params, searchParams }: EditCours
 
   return (
     <PageContainer>
-      <PageHeader
-        title="Edit Course"
-        description="Update the basic metadata for this course."
-        actions={
-          <Button asChild variant="outline" className="rounded-full">
-            <Link href={`/app/${course.id}`}>
-              <ArrowLeft className="size-4" />
-              Back to Course
-            </Link>
-          </Button>
-        }
-      />
+      <Button asChild variant="ghost" className="w-fit rounded-full pl-0 hover:bg-transparent">
+        <Link href={`/app/${course.id}`}>
+          <ArrowLeft className="size-4" />
+          {headerT('backToCourse')}
+        </Link>
+      </Button>
+
+      <PageHeader title="Edit Course" description="Update the basic metadata for this course." />
 
       <CourseForm
         action={updateCourseAction.bind(null, course.id)}

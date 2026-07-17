@@ -24,6 +24,7 @@ import { generateCourseBlueprint } from '@/modules/courses/services/generate-cou
 import { getLessonDetailByIdsForUser } from '@/modules/courses/queries';
 import { generateLessonContent } from '@/modules/lessons/services/generate-lesson-content';
 import { generatePracticeExercises } from '@/modules/lessons/services/generate-practice-exercises';
+import { splitLessonContentIntoBlocks } from '@/lib/lesson-content-blocks';
 
 const DEFAULT_PRACTICE_EXERCISE_COUNT = 3;
 
@@ -416,6 +417,7 @@ export async function generateLessonContentAction(courseId: string, lessonId: st
       lessonId,
       userId,
       content,
+      contentBlocks: splitLessonContentIntoBlocks(content),
     });
 
     if (!updatedLesson) {

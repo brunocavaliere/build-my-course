@@ -22,18 +22,14 @@ export default async function NewCoursePage({ searchParams }: NewCoursePageProps
 
   return (
     <PageContainer>
-      <PageHeader
-        title={t('title')}
-        description={t('description')}
-        actions={
-          <Button asChild variant="outline" className="rounded-full">
-            <Link href="/app">
-              <ArrowLeft className="size-4" />
-              {t('backToCourses')}
-            </Link>
-          </Button>
-        }
-      />
+      <Button asChild variant="ghost" className="w-fit rounded-full pl-0 hover:bg-transparent">
+        <Link href="/app">
+          <ArrowLeft className="size-4" />
+          {t('backToCourses')}
+        </Link>
+      </Button>
+
+      <PageHeader title={t('title')} description={t('description')} />
 
       <Card className="border-border/70 w-full rounded-[2rem] shadow-none">
         <CardHeader className="space-y-3">

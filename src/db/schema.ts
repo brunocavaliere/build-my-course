@@ -12,6 +12,8 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 
+import type { LessonContentBlock } from '@/lib/lesson-content-blocks';
+
 export const users = pgTable('user', {
   id: text('id')
     .primaryKey()
@@ -95,6 +97,7 @@ export const courseLessons = pgTable(
     title: text('title').notNull(),
     description: text('description'),
     content: text('content'),
+    contentBlocks: jsonb('content_blocks').$type<LessonContentBlock[] | null>(),
     position: integer('position').notNull(),
     estimatedMinutes: integer('estimated_minutes'),
     createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),

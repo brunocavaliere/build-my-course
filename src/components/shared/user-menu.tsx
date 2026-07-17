@@ -47,16 +47,44 @@ export function UserMenu({
   userLabel,
 }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isRendered, setIsRendered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function openMenu() {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+
+    setIsRendered(true);
+
+    requestAnimationFrame(() => {
+      setIsOpen(true);
+    });
+  }
+
+  function closeMenu() {
+    setIsOpen(false);
+
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+    }
+
+    closeTimeoutRef.current = setTimeout(() => {
+      setIsRendered(false);
+      closeTimeoutRef.current = null;
+    }, 160);
+  }
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {
-      if (!containerRef.current?.contains(event.target as Node)) {
-        setIsOpen(false);
+      if (isOpen && !containerRef.current?.contains(event.target as Node)) {
+        closeMenu();
       }
     }
 
-    if (!isOpen) {
+    if (!isRendered) {
       return;
     }
 
@@ -65,20 +93,38 @@ export function UserMenu({
     return () => {
       document.removeEventListener('mousedown', handlePointerDown);
     };
-  }, [isOpen]);
+  }, [isOpen, isRendered]);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div ref={containerRef} className="relative">
-      {isOpen ? (
-        <Card className="bg-background border-border/70 absolute top-full right-0 z-50 mt-2 w-56 rounded-2xl py-2 shadow-lg">
+      {isRendered ? (
+        <Card
+          className={cn(
+            'bg-background border-border/70 absolute top-full right-0 z-50 mt-2 w-56 rounded-2xl py-2 shadow-lg transition-all duration-150 ease-out',
+            isOpen
+              ? 'translate-y-0 scale-100 opacity-100'
+              : 'pointer-events-none -translate-y-1 scale-95 opacity-0'
+          )}
+        >
           <CardContent className="space-y-1 px-2">
-            <ThemeToggle
-              variant="ghost"
-              size="default"
-              label={labels?.toggleTheme ?? 'Alternar tema'}
-              ariaLabel={labels?.toggleTheme ?? 'Alternar tema'}
-              className="w-full justify-start rounded-xl"
-            />
+            <div className="space-y-0.5 px-3 py-2">
+              <p className="truncate text-sm font-medium">
+                {userLabel ?? labels?.signedInUser ?? 'Signed in user'}
+              </p>
+              {userEmail ? (
+                <p className="text-muted-foreground truncate text-xs">{userEmail}</p>
+              ) : null}
+            </div>
+
+            <ThemeToggle ariaLabel={labels?.toggleTheme ?? 'Alternar tema'} />
             {localeSwitcher}
 
             <form action={signOutAction}>
@@ -98,23 +144,23 @@ export function UserMenu({
       <button
         type="button"
         className={cn(
-          'hover:bg-accent flex items-center gap-3 rounded-full border px-2.5 py-1.5 text-left transition-colors',
-          isOpen && 'bg-accent'
+          'hover:bg-accent hover:border-border/70 flex size-9 cursor-pointer items-center justify-center rounded-full border border-transparent text-left transition-colors',
+          isOpen && 'bg-accent border-border/70'
         )}
         aria-label={labels?.openUserMenu ?? 'Open user menu'}
         aria-expanded={isOpen}
-        onClick={() => setIsOpen((current) => !current)}
+        onClick={() => {
+          if (isOpen) {
+            closeMenu();
+            return;
+          }
+
+          openMenu();
+        }}
       >
-        <Avatar className="size-8">
+        <Avatar className="size-9">
           <AvatarFallback>{getFallbackLabel(userLabel)}</AvatarFallback>
         </Avatar>
-
-        <div className="hidden min-w-0 sm:block">
-          <p className="max-w-36 truncate text-sm font-medium">
-            {userLabel ?? labels?.signedInUser ?? 'Signed in user'}
-          </p>
-          <p className="text-muted-foreground max-w-36 truncate text-xs">{userEmail}</p>
-        </div>
       </button>
     </div>
   );

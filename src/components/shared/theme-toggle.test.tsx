@@ -17,11 +17,11 @@ describe('ThemeToggle', () => {
       setTheme,
     } as never);
 
-    render(<ThemeToggle label="Toggle theme" />);
+    render(<ThemeToggle />);
 
-    await user.click(screen.getByRole('button', { name: /alternar tema/i }));
+    await user.click(screen.getByRole('button', { name: /tema claro/i }));
 
     expect(setTheme).toHaveBeenCalledWith('light');
-    expect(screen.getByText('Toggle theme')).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /alternar tema/i })).toBeInTheDocument();
   });
 });

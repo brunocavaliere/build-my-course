@@ -19,9 +19,10 @@ describe('UserMenu', () => {
 
     await user.click(screen.getByRole('button', { name: /open user menu/i }));
 
-    expect(screen.getByRole('button', { name: /alternar tema/i })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /alternar tema/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign out/i })).toBeInTheDocument();
     expect(screen.getByText('Bruno Cavaliere')).toBeInTheDocument();
+    expect(screen.getByText('bruno@example.com')).toBeInTheDocument();
   });
 
   it('falls back to BC initials when no label is provided', () => {

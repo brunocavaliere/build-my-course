@@ -1,55 +1,68 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 
-import { Languages, LoaderCircle } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
+import { LoaderCircle } from 'lucide-react';
+import { useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 
-import { localeCookieName, localeLabels, locales, type AppLocale } from '@/i18n/config';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { localeCookieName, locales, type AppLocale } from '@/i18n/config';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export function LocaleSwitcher() {
   const locale = useLocale() as AppLocale;
-  const t = useTranslations('LocaleSwitcher');
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [pendingLocale, setPendingLocale] = useState<AppLocale | null>(null);
 
-  function handleLocaleChange(nextLocale: string) {
-    document.cookie = `${localeCookieName}=${nextLocale}; path=/; max-age=31536000; samesite=lax`;
+  useEffect(() => {
+    if (!pendingLocale || pendingLocale === locale) {
+      return;
+    }
+
+    window.document.cookie = `${localeCookieName}=${pendingLocale}; path=/; max-age=31536000; samesite=lax`;
+
     startTransition(() => {
       router.refresh();
     });
+  }, [locale, pendingLocale, router, startTransition]);
+
+  function handleLocaleChange(nextLocale: string) {
+    if (nextLocale === locale) {
+      return;
+    }
+
+    setPendingLocale(nextLocale as AppLocale);
   }
 
   return (
-    <div className="space-y-2">
-      <p className="text-muted-foreground px-2 text-xs font-medium tracking-[0.14em] uppercase">
-        {t('label')}
-      </p>
-      <Select value={locale} onValueChange={handleLocaleChange} disabled={isPending}>
-        <SelectTrigger className="h-9 w-full rounded-xl">
-          {isPending ? (
-            <LoaderCircle className="size-4 animate-spin" />
-          ) : (
-            <Languages className="size-4" />
-          )}
-          <SelectValue placeholder={t('placeholder')} />
-        </SelectTrigger>
-        <SelectContent>
-          {locales.map((supportedLocale) => (
-            <SelectItem key={supportedLocale} value={supportedLocale}>
-              {localeLabels[supportedLocale]}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <div className="px-3 py-2">
+      <div className="bg-muted inline-flex w-[116px] items-center rounded-lg p-0.5">
+        <div className="grid w-full grid-cols-2 gap-1">
+          {locales.map((supportedLocale) => {
+            const isActive = supportedLocale === (pendingLocale ?? locale);
+
+            return (
+              <Button
+                key={supportedLocale}
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={isPending}
+                onClick={() => handleLocaleChange(supportedLocale)}
+                className={cn(
+                  'h-7 rounded-md px-2 text-[11px] font-medium',
+                  isActive && 'bg-background text-foreground hover:bg-background shadow-sm'
+                )}
+              >
+                {isPending && isActive ? <LoaderCircle className="size-3 animate-spin" /> : null}
+                {supportedLocale === 'pt-BR' ? 'PT' : 'EN'}
+              </Button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

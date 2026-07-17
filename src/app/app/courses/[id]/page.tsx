@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { CheckCircle2, Circle } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 
 import { auth } from '@/auth';
@@ -33,6 +33,7 @@ function formatProgress(total: number, completed: number) {
 export default async function CourseDetailsPage({ params }: CourseDetailsPageProps) {
   const session = await auth();
   const t = await getTranslations('CourseDetailsPage');
+  const headerT = await getTranslations('AppHeader');
   const { id } = await params;
   const userId = session?.user?.id;
 
@@ -67,6 +68,13 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
 
   return (
     <PageContainer>
+      <Button asChild variant="ghost" className="w-fit rounded-full pl-0 hover:bg-transparent">
+        <Link href="/app">
+          <ArrowLeft className="size-4" />
+          {headerT('backToCourses')}
+        </Link>
+      </Button>
+
       <PageHeader
         title={course.title}
         description={course.description ?? course.goal}

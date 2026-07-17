@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button';
 
 export default async function AppLayout({ children }: PropsWithChildren) {
   const session = await auth();
-  const headerT = await getTranslations('AppHeader');
   const userMenuT = await getTranslations('UserMenu');
   const courseFormT = await getTranslations('GenerateCourseForm');
 
@@ -38,10 +37,6 @@ export default async function AppLayout({ children }: PropsWithChildren) {
               </Link>
             </Button>
           }
-          labels={{
-            backToCourse: headerT('backToCourse'),
-            backToCourses: headerT('backToCourses'),
-          }}
           userMenu={
             <UserMenu
               labels={{

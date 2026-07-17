@@ -419,6 +419,7 @@ export async function updateCourseLessonContentByIdForUser(data: {
   lessonId: string;
   userId: string;
   content: string;
+  contentBlocks?: CourseLesson['contentBlocks'];
 }) {
   if (!db) {
     throw new Error('Database is not configured.');
@@ -428,6 +429,7 @@ export async function updateCourseLessonContentByIdForUser(data: {
     .update(courseLessons)
     .set({
       content: data.content,
+      contentBlocks: data.contentBlocks ?? null,
       updatedAt: now(),
     })
     .where(
