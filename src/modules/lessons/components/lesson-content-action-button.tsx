@@ -1,5 +1,7 @@
 'use client';
 
+import { useActionState } from 'react';
+
 import { Sparkles } from 'lucide-react';
 
 import {
@@ -39,7 +41,10 @@ function LessonContentSubmitButton({ hasContent, labels }: LessonContentActionBu
 }
 
 type LessonContentActionFormProps = {
-  action: () => void | Promise<void>;
+  action: (
+    previousState: { error: string | null },
+    formData: FormData
+  ) => Promise<{ error: string | null }>;
   hasContent: boolean;
   labels?: {
     generate?: string;
@@ -47,6 +52,7 @@ type LessonContentActionFormProps = {
     regenerating?: string;
     dialogTitle?: string;
     dialogDescription?: string;
+    dialogHint?: string;
     cancel?: string;
   };
 };
@@ -56,11 +62,20 @@ export function LessonContentActionForm({
   hasContent,
   labels,
 }: LessonContentActionFormProps) {
+  const [state, formAction] = useActionState(action, { error: null });
+
   if (!hasContent) {
     return (
-      <form action={action}>
-        <LessonContentSubmitButton hasContent={hasContent} labels={labels} />
-      </form>
+      <div className="flex flex-col items-end gap-2">
+        <form action={formAction}>
+          <LessonContentSubmitButton hasContent={hasContent} labels={labels} />
+        </form>
+        {state.error ? (
+          <p className="text-destructive max-w-sm text-right text-sm" role="alert">
+            {state.error}
+          </p>
+        ) : null}
+      </div>
     );
   }
 
@@ -78,10 +93,18 @@ export function LessonContentActionForm({
           <AlertDialogDescription>
             {labels?.dialogDescription ?? 'Previous lesson content will be replaced.'}
           </AlertDialogDescription>
+          {labels?.dialogHint ? (
+            <p className="text-muted-foreground text-sm">{labels.dialogHint}</p>
+          ) : null}
+          {state.error ? (
+            <p className="text-destructive text-sm" role="alert">
+              {state.error}
+            </p>
+          ) : null}
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{labels?.cancel ?? 'Cancel'}</AlertDialogCancel>
-          <form action={action}>
+          <form action={formAction}>
             <LessonContentSubmitButton hasContent={hasContent} labels={labels} />
           </form>
         </AlertDialogFooter>

@@ -7,19 +7,22 @@ import { getTranslations } from 'next-intl/server';
 import { auth } from '@/auth';
 import {
   generateLessonContentAction,
+  generateLessonRecommendedMaterialsAction,
   generatePracticeExercisesAction,
   toggleLessonProgressFromLessonPageAction,
 } from '@/app/app/courses/actions';
 import { MarkdownContent } from '@/components/shared/markdown-content';
-import { EmptyState, PageContainer, PageHeader } from '@/components/shared';
+import { PageContainer, PageHeader } from '@/components/shared';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LessonContentBlocks } from '@/modules/lessons/components/lesson-content-blocks';
+import { AutoGenerateLessonContent } from '@/modules/lessons/components/auto-generate-lesson-content';
 import { ConfirmSubmitButton } from '@/modules/courses/components/confirm-submit-button';
 import { getLessonDetailByIdsForUser } from '@/modules/courses/queries';
 import { LessonContentActionForm } from '@/modules/lessons/components/lesson-content-action-button';
 import { PracticeExercisesPanel } from '@/modules/lessons/components/practice-exercises-panel';
+import { RecommendedMaterialsPanel } from '@/modules/lessons/components/recommended-materials-panel';
 
 type LessonDetailsPageProps = {
   params: Promise<{
@@ -28,6 +31,7 @@ type LessonDetailsPageProps = {
   }>;
   searchParams: Promise<{
     aiError?: string;
+    materialsError?: string;
     practiceError?: string;
     tab?: string;
   }>;
@@ -43,7 +47,12 @@ export default async function LessonDetailsPage({ params, searchParams }: Lesson
   }
 
   const { id: courseId, lessonId } = await params;
-  const { aiError, practiceError, tab } = await searchParams;
+  const { aiError, materialsError, practiceError, tab } = await searchParams;
+
+  if (aiError) {
+    const cleanLessonPath = `/app/${courseId}/lessons/${lessonId}`;
+    redirect(tab ? `${cleanLessonPath}?tab=${encodeURIComponent(tab)}` : cleanLessonPath);
+  }
 
   const lessonDetail = await getLessonDetailByIdsForUser(courseId, lessonId, session.user.id);
 
@@ -56,8 +65,10 @@ export default async function LessonDetailsPage({ params, searchParams }: Lesson
   const lessonContent = lesson.content?.trim() || null;
   const lessonContentBlocks = lesson.contentBlocks ?? [];
   const practiceExercises = lesson.practiceExercises ?? [];
-  const generationError: string | null = aiError ?? null;
+  const recommendedMaterials = lesson.recommendedMaterials ?? [];
+  const materialsGenerationError: string | null = materialsError ?? null;
   const practiceGenerationError: string | null = practiceError ?? null;
+  const defaultTab = tab === 'practice' ? 'practice' : tab === 'materials' ? 'materials' : 'lesson';
 
   return (
     <PageContainer>
@@ -81,6 +92,7 @@ export default async function LessonDetailsPage({ params, searchParams }: Lesson
               regenerating: t('generatingLessonContent'),
               dialogTitle: t('regenerateDialogTitle'),
               dialogDescription: t('regenerateDialogDescription'),
+              dialogHint: t('regenerateDialogHint'),
               cancel: t('cancel'),
             }}
           />
@@ -88,10 +100,11 @@ export default async function LessonDetailsPage({ params, searchParams }: Lesson
       />
 
       <section className="space-y-6">
-        <Tabs defaultValue={tab === 'practice' ? 'practice' : 'lesson'}>
+        <Tabs defaultValue={defaultTab}>
           <TabsList>
             <TabsTrigger value="lesson">{t('lessonTab')}</TabsTrigger>
             <TabsTrigger value="practice">{t('practiceTab')}</TabsTrigger>
+            <TabsTrigger value="materials">{t('materialsTab')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="lesson">
@@ -151,31 +164,33 @@ export default async function LessonDetailsPage({ params, searchParams }: Lesson
                   </p>
                 ) : null}
 
-                {generationError ? (
-                  <div className="text-destructive bg-destructive/10 rounded-2xl px-4 py-3 text-sm">
-                    {generationError}
-                  </div>
+                {!lessonContent ? (
+                  <AutoGenerateLessonContent
+                    action={generateLessonContentAction.bind(null, courseId, lessonId)}
+                    labels={{
+                      title: t('generatingLessonContent'),
+                      description: t('autoGeneratingLessonDescription'),
+                      retry: t('tryAgain'),
+                    }}
+                  />
                 ) : lessonContentBlocks.length ? (
-                  <LessonContentBlocks blocks={lessonContentBlocks} />
+                  <LessonContentBlocks
+                    blocks={lessonContentBlocks}
+                    labels={{
+                      objectives: t('lessonObjectives'),
+                      guidedExample: t('guidedExample'),
+                      keyInsight: t('keyInsight'),
+                      commonMistake: t('commonMistake'),
+                      correction: t('mistakeCorrection'),
+                      checkpoint: t('checkpoint'),
+                      revealAnswer: t('revealCheckpointAnswer'),
+                      process: t('stepByStep'),
+                      summary: t('lessonSummary'),
+                    }}
+                  />
                 ) : lessonContent ? (
                   <MarkdownContent content={lessonContent} className="space-y-6" />
-                ) : (
-                  <div className="space-y-6">
-                    <EmptyState
-                      className="border-0 bg-transparent p-0 text-left shadow-none"
-                      title={t('noContentTitle')}
-                      description={t('noContentDescription')}
-                    />
-                    <LessonContentActionForm
-                      action={generateLessonContentAction.bind(null, courseId, lessonId)}
-                      hasContent={false}
-                      labels={{
-                        generate: t('generateLessonContent'),
-                        regenerating: t('generatingLessonContent'),
-                      }}
-                    />
-                  </div>
-                )}
+                ) : null}
               </CardContent>
             </Card>
           </TabsContent>
@@ -194,15 +209,35 @@ export default async function LessonDetailsPage({ params, searchParams }: Lesson
                 moreDescription: t('needMorePracticeDescription'),
                 moreCta: t('generateMoreExercises'),
                 exercise: t('exercise'),
-                multipleChoice: t('multipleChoice'),
-                appliedTask: t('appliedTask'),
-                reflection: t('reflection'),
-                shortAnswer: t('shortAnswer'),
-                checkAnswer: t('checkAnswer'),
+                chooseAnswer: t('chooseAnswer'),
+                revealAnswer: t('revealAnswer'),
                 correct: t('correctAnswer'),
                 incorrect: t('incorrectAnswer'),
                 explanation: t('explanation'),
-                answerGuidance: t('answerGuidance'),
+                yourAnswer: t('yourAnswer'),
+                correctOption: t('correctOption'),
+                tryAgain: t('tryAgain'),
+              }}
+            />
+          </TabsContent>
+
+          <TabsContent value="materials">
+            <RecommendedMaterialsPanel
+              action={generateLessonRecommendedMaterialsAction.bind(null, courseId, lessonId)}
+              materials={recommendedMaterials}
+              error={materialsGenerationError}
+              labels={{
+                sectionVideo: t('recommendedVideos'),
+                sectionArticle: t('recommendedReadings'),
+                sectionBook: t('recommendedBooks'),
+                emptyTitle: t('noMaterialsTitle'),
+                emptyDescription: t('noMaterialsDescription'),
+                generate: t('generateMaterials'),
+                regenerate: t('refreshMaterials'),
+                generating: t('generatingMaterials'),
+                open: t('openMaterial'),
+                refreshTitle: t('refreshMaterialsTitle'),
+                refreshDescription: t('refreshMaterialsDescription'),
               }}
             />
           </TabsContent>

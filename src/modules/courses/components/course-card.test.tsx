@@ -10,6 +10,7 @@ const course = {
   goal: 'Become job-ready with React.',
   description: 'A practical React path.',
   level: 'Beginner',
+  courseLanguage: 'en-US',
   estimatedWeeks: 8,
   createdAt: new Date('2026-07-16T12:00:00Z'),
   updatedAt: new Date('2026-07-16T12:00:00Z'),
@@ -24,6 +25,7 @@ describe('CourseCard', () => {
     expect(screen.getByText('A practical React path.')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /open/i })).toHaveAttribute('href', '/app/course-1');
     expect(screen.getByText(/level: beginner/i)).toBeInTheDocument();
+    expect(screen.getByText(/language: english \(united states\)/i)).toBeInTheDocument();
     expect(screen.getByText(/8 weeks/i)).toBeInTheDocument();
   });
 });

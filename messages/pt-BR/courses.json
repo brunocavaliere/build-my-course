@@ -9,6 +9,7 @@
   "CourseCard": {
     "open": "Abrir",
     "level": "Nível",
+    "language": "Idioma",
     "weeks": "{count} semanas",
     "created": "Criado em {date}"
   },
@@ -25,6 +26,8 @@
     "goalPlaceholder": "Quero aprender React bem o suficiente para conseguir uma vaga frontend.",
     "levelLabel": "Nível",
     "levelPlaceholder": "Selecione um nível",
+    "courseLanguageLabel": "Idioma do curso",
+    "courseLanguagePlaceholder": "Selecione o idioma do curso",
     "weeksLabel": "Semanas estimadas",
     "weeksPlaceholder": "6",
     "submit": "Gerar curso",
@@ -45,6 +48,7 @@
     "progress": "Progresso",
     "lessonsCompleted": "{completed} de {total} aulas concluídas",
     "level": "Nível",
+    "language": "Idioma",
     "notSpecified": "Não informado",
     "duration": "Duração",
     "weeks": "{count} semanas",

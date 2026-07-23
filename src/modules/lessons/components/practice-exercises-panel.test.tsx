@@ -9,9 +9,9 @@ const exercises = [
     lessonId: 'lesson-1',
     title: 'Exercise A',
     instructions: 'Answer A.',
-    type: 'short_answer',
-    options: null,
-    correctOptionIndex: null,
+    type: 'multiple_choice',
+    options: ['A', 'B', 'C', 'D'],
+    correctOptionIndex: 0,
     answerGuidance: 'Keep it concise.',
     createdAt: new Date('2026-07-16T12:00:00Z'),
     updatedAt: new Date('2026-07-16T12:00:00Z'),
@@ -38,7 +38,7 @@ describe('PracticeExercisesPanel', () => {
     );
 
     expect(screen.getByText('Temporary issue')).toBeInTheDocument();
-    expect(screen.getByText('Exercise A')).toBeInTheDocument();
+    expect(screen.getAllByText('Exercise A').length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: /generate more exercises/i })).toBeInTheDocument();
   });
 });

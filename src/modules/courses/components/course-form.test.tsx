@@ -14,6 +14,7 @@ describe('CourseForm', () => {
           goal: 'Get job ready',
           description: 'A custom path',
           level: 'Beginner',
+          courseLanguage: 'pt-BR',
           estimatedWeeks: 6,
         }}
         secondaryAction={<button type="button">Cancel</button>}
@@ -23,6 +24,7 @@ describe('CourseForm', () => {
     expect(screen.getByText('Save failed')).toBeInTheDocument();
     expect(screen.getByDisplayValue('React Roadmap')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Get job ready')).toBeInTheDocument();
+    expect(screen.getAllByText('Português (Brasil)').length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: 'Save course' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
   });

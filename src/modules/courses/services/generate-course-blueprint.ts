@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { brand } from '@/lib/brand';
 import { env } from '@/env';
+import { getCourseLanguagePromptLabel } from '@/modules/courses/lib/course-language';
 import type { GeneratedCourseBlueprint } from '@/modules/courses/types';
 
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
@@ -105,14 +106,23 @@ function buildSystemPrompt() {
   ].join(' ');
 }
 
-function buildUserPrompt(input: { goal: string; level: string; estimatedWeeks: number }) {
+function buildUserPrompt(input: {
+  goal: string;
+  level: string;
+  courseLanguage: string;
+  estimatedWeeks: number;
+}) {
+  const promptLanguage = getCourseLanguagePromptLabel(input.courseLanguage);
+
   return [
     `Learning goal: ${input.goal}`,
     `Level: ${input.level}`,
+    `Generate the full course in: ${promptLanguage}`,
     `Estimated duration in weeks: ${input.estimatedWeeks}`,
     'Plan enough modules and lessons to fit that duration.',
     'Prefer progression from fundamentals to applied practice.',
     'Keep module and lesson titles short.',
+    'All titles, descriptions, modules, and lessons must be written in that language.',
   ].join('\n');
 }
 
@@ -249,6 +259,7 @@ function getErrorMessage(payload: unknown) {
 export async function generateCourseBlueprint(input: {
   goal: string;
   level: string;
+  courseLanguage: string;
   estimatedWeeks: number;
 }): Promise<GeneratedCourseBlueprint> {
   if (!env.OPENAI_API_KEY) {

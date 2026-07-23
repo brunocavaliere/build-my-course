@@ -11,11 +11,13 @@ import {
   createNextCourseLesson,
   createNextLessonPracticeExercisesForUser,
   createNextCourseModule,
+  deleteLessonPracticeExercisesByLessonIdForUser,
   deleteCourseByIdForUser,
   deleteCourseLessonByIdForUser,
   deleteCourseModuleByIdForUser,
   setUserLessonProgress,
   updateCourseLessonContentByIdForUser,
+  updateCourseLessonRecommendedMaterialsByIdForUser,
   updateCourseLessonByIdForUser,
   updateCourseMetadata,
   updateCourseModuleByIdForUser,
@@ -23,16 +25,21 @@ import {
 import { generateCourseBlueprint } from '@/modules/courses/services/generate-course-blueprint';
 import { getLessonDetailByIdsForUser } from '@/modules/courses/queries';
 import { generateLessonContent } from '@/modules/lessons/services/generate-lesson-content';
+import { generateLessonRecommendedMaterials } from '@/modules/lessons/services/generate-lesson-recommended-materials';
 import { generatePracticeExercises } from '@/modules/lessons/services/generate-practice-exercises';
-import { splitLessonContentIntoBlocks } from '@/lib/lesson-content-blocks';
+import { courseLanguageValues, defaultCourseLanguage } from '@/modules/courses/lib/course-language';
 
 const DEFAULT_PRACTICE_EXERCISE_COUNT = 3;
+const DEFAULT_INITIAL_PRACTICE_EXERCISE_COUNT = 5;
 
 const courseMetadataSchema = z.object({
   title: z.string().trim().min(1, 'Title is required.'),
   goal: z.string().trim().min(1, 'Goal is required.'),
   description: z.string().trim().optional(),
   level: z.string().trim().optional(),
+  courseLanguage: z.enum(courseLanguageValues, {
+    message: 'Course language is invalid.',
+  }),
   estimatedWeeks: z
     .string()
     .trim()
@@ -86,6 +93,9 @@ const generateCourseSchema = z.object({
   level: z.enum(['Beginner', 'Intermediate', 'Advanced'], {
     message: 'Level must be Beginner, Intermediate, or Advanced.',
   }),
+  courseLanguage: z.enum(courseLanguageValues, {
+    message: 'Course language is invalid.',
+  }),
   estimatedWeeks: z
     .string()
     .trim()
@@ -122,6 +132,7 @@ export async function createCourseAction(formData: FormData) {
     goal: formData.get('goal'),
     description: formData.get('description'),
     level: formData.get('level'),
+    courseLanguage: formData.get('courseLanguage'),
     estimatedWeeks: formData.get('estimatedWeeks'),
   });
 
@@ -137,6 +148,7 @@ export async function createCourseAction(formData: FormData) {
     goal: parsed.data.goal,
     description: parsed.data.description || null,
     level: parsed.data.level || null,
+    courseLanguage: parsed.data.courseLanguage,
     estimatedWeeks: parsed.data.estimatedWeeks,
   });
 
@@ -148,6 +160,7 @@ export async function generateCourseAction(formData: FormData) {
   const parsed = generateCourseSchema.safeParse({
     goal: formData.get('goal'),
     level: formData.get('level'),
+    courseLanguage: formData.get('courseLanguage'),
     estimatedWeeks: formData.get('estimatedWeeks'),
   });
 
@@ -165,6 +178,7 @@ export async function generateCourseAction(formData: FormData) {
     const blueprint = await generateCourseBlueprint({
       goal: parsed.data.goal,
       level: parsed.data.level,
+      courseLanguage: parsed.data.courseLanguage,
       estimatedWeeks: parsed.data.estimatedWeeks,
     });
 
@@ -172,6 +186,7 @@ export async function generateCourseAction(formData: FormData) {
       userId,
       goal: parsed.data.goal,
       level: parsed.data.level,
+      courseLanguage: parsed.data.courseLanguage,
       estimatedWeeks: parsed.data.estimatedWeeks,
       blueprint,
     });
@@ -195,6 +210,7 @@ export async function updateCourseAction(courseId: string, formData: FormData) {
     goal: formData.get('goal'),
     description: formData.get('description'),
     level: formData.get('level'),
+    courseLanguage: formData.get('courseLanguage'),
     estimatedWeeks: formData.get('estimatedWeeks'),
   });
 
@@ -212,6 +228,7 @@ export async function updateCourseAction(courseId: string, formData: FormData) {
     goal: parsed.data.goal,
     description: parsed.data.description || null,
     level: parsed.data.level || null,
+    courseLanguage: parsed.data.courseLanguage,
     estimatedWeeks: parsed.data.estimatedWeeks,
   });
 
@@ -394,7 +411,19 @@ export async function toggleLessonProgressFromLessonPageAction(
   redirect(`/app/${courseId}/lessons/${lessonId}`);
 }
 
-export async function generateLessonContentAction(courseId: string, lessonId: string) {
+export type LessonContentActionState = {
+  error: string | null;
+};
+
+export async function generateLessonContentAction(
+  courseId: string,
+  lessonId: string,
+  previousState: LessonContentActionState,
+  formData: FormData
+): Promise<LessonContentActionState> {
+  void previousState;
+  void formData;
+
   const userId = await requireUserId();
   const lessonDetail = await getLessonDetailByIdsForUser(courseId, lessonId, userId);
 
@@ -403,45 +432,71 @@ export async function generateLessonContentAction(courseId: string, lessonId: st
   }
 
   try {
-    const content = await generateLessonContent({
+    const shouldGenerateRecommendedMaterials =
+      (lessonDetail.lesson.recommendedMaterials?.length ?? 0) === 0;
+
+    const generatedLesson = await generateLessonContent({
       courseTitle: lessonDetail.lesson.module.course.title,
       courseGoal: lessonDetail.lesson.module.course.goal,
       level: lessonDetail.lesson.module.course.level,
+      courseLanguage: lessonDetail.lesson.module.course.courseLanguage ?? defaultCourseLanguage,
       moduleTitle: lessonDetail.lesson.module.title,
       moduleDescription: lessonDetail.lesson.module.description,
       lessonTitle: lessonDetail.lesson.title,
       lessonDescription: lessonDetail.lesson.description,
+      estimatedMinutes: lessonDetail.lesson.estimatedMinutes,
     });
 
     const updatedLesson = await updateCourseLessonContentByIdForUser({
       lessonId,
       userId,
-      content,
-      contentBlocks: splitLessonContentIntoBlocks(content),
+      content: generatedLesson.content,
+      contentBlocks: generatedLesson.blocks,
     });
 
     if (!updatedLesson) {
       redirect('/app');
     }
 
-    if ((lessonDetail.lesson.practiceExercises?.length ?? 0) === 0) {
-      const exercises = await generatePracticeExercises({
+    const exercises = await generatePracticeExercises({
+      courseTitle: lessonDetail.lesson.module.course.title,
+      courseGoal: lessonDetail.lesson.module.course.goal,
+      level: lessonDetail.lesson.module.course.level,
+      courseLanguage: lessonDetail.lesson.module.course.courseLanguage ?? defaultCourseLanguage,
+      moduleTitle: lessonDetail.lesson.module.title,
+      moduleDescription: lessonDetail.lesson.module.description,
+      lessonTitle: lessonDetail.lesson.title,
+      lessonDescription: lessonDetail.lesson.description,
+      lessonContent: generatedLesson.content,
+      count: DEFAULT_INITIAL_PRACTICE_EXERCISE_COUNT,
+      existingExerciseTitles: [],
+    });
+
+    await deleteLessonPracticeExercisesByLessonIdForUser(lessonId, userId);
+
+    await createNextLessonPracticeExercisesForUser({
+      lessonId,
+      userId,
+      exercises,
+    });
+
+    if (shouldGenerateRecommendedMaterials) {
+      const recommendedMaterials = await generateLessonRecommendedMaterials({
         courseTitle: lessonDetail.lesson.module.course.title,
         courseGoal: lessonDetail.lesson.module.course.goal,
         level: lessonDetail.lesson.module.course.level,
+        courseLanguage: lessonDetail.lesson.module.course.courseLanguage ?? defaultCourseLanguage,
         moduleTitle: lessonDetail.lesson.module.title,
         moduleDescription: lessonDetail.lesson.module.description,
         lessonTitle: lessonDetail.lesson.title,
         lessonDescription: lessonDetail.lesson.description,
-        lessonContent: content,
-        count: DEFAULT_PRACTICE_EXERCISE_COUNT,
-        existingExerciseTitles: [],
+        lessonContent: generatedLesson.content,
       });
 
-      await createNextLessonPracticeExercisesForUser({
+      await updateCourseLessonRecommendedMaterialsByIdForUser({
         lessonId,
         userId,
-        exercises,
+        recommendedMaterials,
       });
     }
 
@@ -454,7 +509,69 @@ export async function generateLessonContentAction(courseId: string, lessonId: st
     const message =
       error instanceof Error ? error.message : 'Unable to generate lesson content right now.';
 
-    redirect(buildErrorRedirect(`/app/${courseId}/lessons/${lessonId}`, message, 'aiError'));
+    return { error: message };
+  }
+}
+
+export async function generateLessonRecommendedMaterialsAction(courseId: string, lessonId: string) {
+  const userId = await requireUserId();
+  const lessonDetail = await getLessonDetailByIdsForUser(courseId, lessonId, userId);
+
+  if (!lessonDetail) {
+    redirect('/app');
+  }
+
+  if (!lessonDetail.lesson.content?.trim()) {
+    redirect(
+      buildErrorRedirect(
+        `/app/${courseId}/lessons/${lessonId}?tab=materials`,
+        'Generate lesson content before generating recommended materials.',
+        'materialsError'
+      )
+    );
+  }
+
+  try {
+    const recommendedMaterials = await generateLessonRecommendedMaterials({
+      courseTitle: lessonDetail.lesson.module.course.title,
+      courseGoal: lessonDetail.lesson.module.course.goal,
+      level: lessonDetail.lesson.module.course.level,
+      courseLanguage: lessonDetail.lesson.module.course.courseLanguage ?? defaultCourseLanguage,
+      moduleTitle: lessonDetail.lesson.module.title,
+      moduleDescription: lessonDetail.lesson.module.description,
+      lessonTitle: lessonDetail.lesson.title,
+      lessonDescription: lessonDetail.lesson.description,
+      lessonContent: lessonDetail.lesson.content.trim(),
+    });
+
+    const updatedLesson = await updateCourseLessonRecommendedMaterialsByIdForUser({
+      lessonId,
+      userId,
+      recommendedMaterials,
+    });
+
+    if (!updatedLesson) {
+      redirect('/app');
+    }
+
+    redirect(`/app/${courseId}/lessons/${lessonId}?tab=materials`);
+  } catch (error) {
+    if (isRedirectError(error)) {
+      throw error;
+    }
+
+    const message =
+      error instanceof Error
+        ? error.message
+        : 'Unable to generate recommended materials right now.';
+
+    redirect(
+      buildErrorRedirect(
+        `/app/${courseId}/lessons/${lessonId}?tab=materials`,
+        message,
+        'materialsError'
+      )
+    );
   }
 }
 
@@ -471,6 +588,7 @@ export async function generatePracticeExercisesAction(courseId: string, lessonId
       courseTitle: lessonDetail.lesson.module.course.title,
       courseGoal: lessonDetail.lesson.module.course.goal,
       level: lessonDetail.lesson.module.course.level,
+      courseLanguage: lessonDetail.lesson.module.course.courseLanguage ?? defaultCourseLanguage,
       moduleTitle: lessonDetail.lesson.module.title,
       moduleDescription: lessonDetail.lesson.module.description,
       lessonTitle: lessonDetail.lesson.title,

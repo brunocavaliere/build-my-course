@@ -57,6 +57,7 @@ export default async function EditCoursePage({ params, searchParams }: EditCours
           goal: course.goal,
           description: course.description,
           level: course.level,
+          courseLanguage: course.courseLanguage,
           estimatedWeeks: course.estimatedWeeks,
         }}
         secondaryAction={

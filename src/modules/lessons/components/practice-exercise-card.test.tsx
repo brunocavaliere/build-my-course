@@ -26,26 +26,47 @@ describe('PracticeExerciseCard', () => {
     render(<PracticeExerciseCard exercise={multipleChoiceExercise} index={0} />);
 
     await user.click(screen.getByRole('button', { name: /b/i }));
-    await user.click(screen.getByRole('button', { name: /check answer/i }));
+    await user.click(screen.getByRole('button', { name: /reveal answer/i }));
 
     expect(screen.getByText('Correct answer.')).toBeInTheDocument();
     expect(screen.getByText('Explanation')).toBeInTheDocument();
+    expect(screen.getByText(/your answer:/i)).toBeInTheDocument();
+    expect(screen.getByText(/correct answer:/i)).toBeInTheDocument();
   });
 
-  it('renders answer guidance for non multiple choice exercises', () => {
+  it('lets the learner flip back and try again', async () => {
+    const user = userEvent.setup();
+
+    render(<PracticeExerciseCard exercise={multipleChoiceExercise} index={1} />);
+
+    await user.click(screen.getByRole('button', { name: /b/i }));
+    await user.click(screen.getByRole('button', { name: /reveal answer/i }));
+    await user.click(screen.getByRole('button', { name: /try again/i }));
+
+    expect(screen.getByRole('button', { name: /reveal answer/i })).toBeInTheDocument();
+  });
+
+  it('supports localized labels on the back of the card', async () => {
+    const user = userEvent.setup();
+
     render(
       <PracticeExerciseCard
-        exercise={{
-          ...multipleChoiceExercise,
-          type: 'short_answer',
-          options: null,
-          correctOptionIndex: null,
+        exercise={multipleChoiceExercise}
+        index={0}
+        labels={{
+          revealAnswer: 'Ver resposta',
+          correct: 'Resposta correta.',
+          explanation: 'Explicação',
+          yourAnswer: 'Sua resposta',
+          correctOption: 'Resposta correta',
         }}
-        index={1}
       />
     );
 
-    expect(screen.getByText('What good looks like')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /check answer/i })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /b/i }));
+    await user.click(screen.getByRole('button', { name: /ver resposta/i }));
+
+    expect(screen.getAllByText(/resposta correta/i)).not.toHaveLength(0);
+    expect(screen.getByText(/sua resposta:/i)).toBeInTheDocument();
   });
 });

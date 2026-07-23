@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 
 import { db } from '@/db';
 import {
@@ -21,6 +21,7 @@ import type {
   NewCourseModule,
   UserLessonProgress,
 } from '@/modules/courses/types';
+import type { LessonRecommendedMaterial } from '@/modules/lessons/lib/recommended-materials';
 
 function now() {
   return new Date();
@@ -32,6 +33,7 @@ export async function createCourse(data: {
   goal: string;
   description?: string | null;
   level?: string | null;
+  courseLanguage: string;
   estimatedWeeks?: number | null;
 }): Promise<Course> {
   if (!db) {
@@ -44,6 +46,7 @@ export async function createCourse(data: {
     goal: data.goal,
     description: data.description ?? null,
     level: data.level ?? null,
+    courseLanguage: data.courseLanguage,
     estimatedWeeks: data.estimatedWeeks ?? null,
     createdAt: now(),
     updatedAt: now(),
@@ -58,6 +61,7 @@ export async function createGeneratedCourseForUser(data: {
   userId: string;
   goal: string;
   level: string;
+  courseLanguage: string;
   estimatedWeeks: number;
   blueprint: GeneratedCourseBlueprint;
 }): Promise<Course> {
@@ -67,6 +71,7 @@ export async function createGeneratedCourseForUser(data: {
     goal: data.goal,
     description: data.blueprint.description,
     level: data.level,
+    courseLanguage: data.courseLanguage,
     estimatedWeeks: data.estimatedWeeks,
   });
 
@@ -101,7 +106,9 @@ export async function createGeneratedCourseForUser(data: {
 export async function updateCourseMetadata(
   courseId: string,
   userId: string,
-  data: Partial<Pick<Course, 'title' | 'description' | 'goal' | 'level' | 'estimatedWeeks'>>
+  data: Partial<
+    Pick<Course, 'title' | 'description' | 'goal' | 'level' | 'courseLanguage' | 'estimatedWeeks'>
+  >
 ) {
   if (!db) {
     throw new Error('Database is not configured.');
@@ -336,6 +343,33 @@ export async function createNextLessonPracticeExercisesForUser(data: {
   });
 }
 
+export async function deleteLessonPracticeExercisesByLessonIdForUser(
+  lessonId: string,
+  userId: string
+) {
+  if (!db) {
+    throw new Error('Database is not configured.');
+  }
+
+  const [lesson] = await db
+    .select({
+      id: courseLessons.id,
+    })
+    .from(courseLessons)
+    .innerJoin(courseModules, eq(courseModules.id, courseLessons.moduleId))
+    .innerJoin(courses, eq(courses.id, courseModules.courseId))
+    .where(and(eq(courseLessons.id, lessonId), eq(courses.userId, userId)));
+
+  if (!lesson) {
+    return null;
+  }
+
+  return db
+    .delete(lessonPracticeExercises)
+    .where(eq(lessonPracticeExercises.lessonId, lessonId))
+    .returning();
+}
+
 export async function createNextCourseLesson(data: {
   moduleId: string;
   userId: string;
@@ -430,6 +464,38 @@ export async function updateCourseLessonContentByIdForUser(data: {
     .set({
       content: data.content,
       contentBlocks: data.contentBlocks ?? null,
+      updatedAt: now(),
+    })
+    .where(
+      and(
+        eq(courseLessons.id, data.lessonId),
+        sql`exists (
+          select 1
+          from ${courseModules}
+          inner join ${courses} on ${courses.id} = ${courseModules.courseId}
+          where ${courseModules.id} = ${courseLessons.moduleId}
+            and ${courses.userId} = ${data.userId}
+        )`
+      )
+    )
+    .returning();
+
+  return lesson ?? null;
+}
+
+export async function updateCourseLessonRecommendedMaterialsByIdForUser(data: {
+  lessonId: string;
+  userId: string;
+  recommendedMaterials: LessonRecommendedMaterial[];
+}) {
+  if (!db) {
+    throw new Error('Database is not configured.');
+  }
+
+  const [lesson] = await db
+    .update(courseLessons)
+    .set({
+      recommendedMaterials: data.recommendedMaterials,
       updatedAt: now(),
     })
     .where(

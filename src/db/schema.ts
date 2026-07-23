@@ -13,6 +13,7 @@ import {
 } from 'drizzle-orm/pg-core';
 
 import type { LessonContentBlock } from '@/lib/lesson-content-blocks';
+import type { LessonRecommendedMaterial } from '@/modules/lessons/lib/recommended-materials';
 
 export const users = pgTable('user', {
   id: text('id')
@@ -59,6 +60,7 @@ export const courses = pgTable(
     description: text('description'),
     goal: text('goal').notNull(),
     level: text('level'),
+    courseLanguage: text('course_language').default('pt-BR').notNull(),
     estimatedWeeks: integer('estimated_weeks'),
     createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow().notNull(),
@@ -98,6 +100,9 @@ export const courseLessons = pgTable(
     description: text('description'),
     content: text('content'),
     contentBlocks: jsonb('content_blocks').$type<LessonContentBlock[] | null>(),
+    recommendedMaterials: jsonb('recommended_materials').$type<
+      LessonRecommendedMaterial[] | null
+    >(),
     position: integer('position').notNull(),
     estimatedMinutes: integer('estimated_minutes'),
     createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),

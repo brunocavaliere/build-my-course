@@ -74,8 +74,17 @@ export type PracticeExerciseType =
 export type GeneratedPracticeExercise = {
   title: string;
   instructions: string;
-  type: PracticeExerciseType;
-  options: string[] | null;
-  correctOptionIndex: number | null;
+  type: 'multiple_choice';
+  options: string[];
+  correctOptionIndex: number;
   answerGuidance: string | null;
+};
+
+export type GeneratedLessonRecommendedMaterial = {
+  type: 'video' | 'article' | 'book';
+  title: string;
+  description: string;
+  url: string | null;
+  author: string | null;
+  sourceName: string | null;
 };

@@ -15,7 +15,7 @@ export function AppShell({ children, className, header }: AppShellProps) {
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         {header ? (
           <header className="border-border/70 bg-background/90 sticky top-0 z-30 shrink-0 border-b backdrop-blur">
-            <div className="mx-auto flex min-h-16 w-full max-w-[1200px] items-center gap-3 px-4 py-5 sm:px-6 lg:px-8">
+            <div className="mx-auto flex min-h-16 w-full max-w-5xl items-center gap-3 px-4 py-5 sm:px-6 lg:px-8">
               <div className="min-w-0 flex-1">{header}</div>
             </div>
           </header>

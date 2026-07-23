@@ -8,6 +8,7 @@ import { auth } from '@/auth';
 import { deleteCourseAction, toggleLessonProgressAction } from '@/app/app/courses/actions';
 import { ConfirmSubmitButton } from '@/modules/courses/components/confirm-submit-button';
 import { DeleteCourseButton } from '@/modules/courses/components/delete-course-button';
+import { getCourseLanguageLabel } from '@/modules/courses/lib/course-language';
 import {
   getCourseWithContentByIdForUser,
   listLessonProgressByUserId,
@@ -104,7 +105,7 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
               <p className="text-sm leading-7">{course.goal}</p>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               <div className="rounded-2xl border px-4 py-4">
                 <p className="text-muted-foreground text-xs font-medium tracking-[0.14em] uppercase">
                   {t('progress')}
@@ -133,6 +134,15 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
                   {course.estimatedWeeks
                     ? t('weeks', { count: course.estimatedWeeks })
                     : t('flexible')}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border px-4 py-4">
+                <p className="text-muted-foreground text-xs font-medium tracking-[0.14em] uppercase">
+                  {t('language')}
+                </p>
+                <p className="mt-2 text-lg font-medium">
+                  {getCourseLanguageLabel(course.courseLanguage)}
                 </p>
               </div>
             </div>

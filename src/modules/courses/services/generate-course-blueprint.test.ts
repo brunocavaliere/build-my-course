@@ -55,6 +55,7 @@ describe('generateCourseBlueprint', () => {
     const result = await generateCourseBlueprint({
       goal: 'Get a frontend job',
       level: 'Beginner',
+      courseLanguage: 'en-US',
       estimatedWeeks: 8,
     });
 
@@ -107,6 +108,7 @@ describe('generateCourseBlueprint', () => {
     const result = await generateCourseBlueprint({
       goal: 'Goal',
       level: 'Intermediate',
+      courseLanguage: 'es-ES',
       estimatedWeeks: 6,
     });
 
@@ -125,6 +127,7 @@ describe('generateCourseBlueprint', () => {
       generateCourseBlueprint({
         goal: 'Goal',
         level: 'Intermediate',
+        courseLanguage: 'pt-BR',
         estimatedWeeks: 6,
       })
     ).rejects.toThrow('Rate limit');
@@ -181,6 +184,7 @@ describe('generateCourseBlueprint', () => {
     const result = await generateCourseBlueprint({
       goal: 'Goal',
       level: 'Intermediate',
+      courseLanguage: 'fr-FR',
       estimatedWeeks: 6,
     });
 
@@ -197,6 +201,7 @@ describe('generateCourseBlueprint', () => {
       generateCourseBlueprint({
         goal: 'Goal',
         level: 'Intermediate',
+        courseLanguage: 'de-DE',
         estimatedWeeks: 6,
       })
     ).rejects.toThrow('OpenAI request failed.');
@@ -214,6 +219,7 @@ describe('generateCourseBlueprint', () => {
       generateCourseBlueprint({
         goal: 'Goal',
         level: 'Intermediate',
+        courseLanguage: 'it-IT',
         estimatedWeeks: 6,
       })
     ).rejects.toThrow('OpenAI did not return structured course content.');

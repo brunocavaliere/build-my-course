@@ -11,6 +11,7 @@ const input = {
   courseTitle: 'SQL Course',
   courseGoal: 'Learn SQL',
   level: 'Beginner',
+  courseLanguage: 'es-ES',
   moduleTitle: 'Fundamentals',
   moduleDescription: 'Core SQL ideas',
   lessonTitle: 'Introduction to SQL',
@@ -67,10 +68,10 @@ describe('generatePracticeExercises', () => {
             {
               title: 'Exercise 1',
               instructions: 'Do it',
-              type: 'short_answer',
-              options: null,
-              correctOptionIndex: null,
-              answerGuidance: null,
+              type: 'multiple_choice',
+              options: ['A', 'B', 'C', 'D'],
+              correctOptionIndex: 2,
+              answerGuidance: 'Why C is correct.',
             },
           ],
         }),
@@ -105,10 +106,10 @@ describe('generatePracticeExercises', () => {
                     {
                       title: 'Exercise 1',
                       instructions: 'Do it',
-                      type: 'reflection',
-                      options: null,
-                      correctOptionIndex: null,
-                      answerGuidance: 'Think about it',
+                      type: 'multiple_choice',
+                      options: ['A', 'B', 'C', 'D'],
+                      correctOptionIndex: 1,
+                      answerGuidance: 'B is the best choice.',
                     },
                   ],
                 }),
@@ -121,7 +122,7 @@ describe('generatePracticeExercises', () => {
 
     const result = await generatePracticeExercises(input);
 
-    expect(result[0].type).toBe('reflection');
+    expect(result[0].type).toBe('multiple_choice');
   });
 
   it('uses provider error message when available', async () => {

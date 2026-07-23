@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { env } from '@/env';
+import { getCourseLanguagePromptLabel } from '@/modules/courses/lib/course-language';
 import type { GeneratedPracticeExercise } from '@/modules/courses/types';
 
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
@@ -9,10 +10,10 @@ const REQUEST_TIMEOUT_MS = 45_000;
 const generatedPracticeExerciseSchema = z.object({
   title: z.string().trim().min(1).max(120),
   instructions: z.string().trim().min(1).max(600),
-  type: z.enum(['multiple_choice', 'short_answer', 'applied_task', 'reflection']),
-  options: z.array(z.string().trim().min(1).max(160)).min(4).max(4).nullable(),
-  correctOptionIndex: z.number().int().min(0).max(3).nullable(),
-  answerGuidance: z.string().trim().max(240).nullable(),
+  type: z.literal('multiple_choice'),
+  options: z.array(z.string().trim().min(1).max(160)).min(4).max(4),
+  correctOptionIndex: z.number().int().min(0).max(3),
+  answerGuidance: z.string().trim().max(520).nullable(),
 });
 
 const generatedPracticeExercisesSchema = z.object({
@@ -52,10 +53,10 @@ const generatedPracticeExercisesJsonSchema = {
           },
           type: {
             type: 'string',
-            enum: ['multiple_choice', 'short_answer', 'applied_task', 'reflection'],
+            enum: ['multiple_choice'],
           },
           options: {
-            type: ['array', 'null'],
+            type: 'array',
             minItems: 4,
             maxItems: 4,
             items: {
@@ -65,13 +66,13 @@ const generatedPracticeExercisesJsonSchema = {
             },
           },
           correctOptionIndex: {
-            type: ['integer', 'null'],
+            type: 'integer',
             minimum: 0,
             maximum: 3,
           },
           answerGuidance: {
             type: ['string', 'null'],
-            maxLength: 240,
+            maxLength: 520,
           },
         },
       },
@@ -83,13 +84,13 @@ function buildSystemPrompt() {
   return [
     'You are an instructional designer creating practice exercises for a lesson.',
     'Return practical exercises only.',
+    'Generate only multiple_choice exercises.',
     'Keep exercises specific, concise, and matched to the lesson level.',
     'Do not include solutions, external links, or markdown formatting.',
-    'Prefer at least one multiple_choice exercise when it fits the lesson.',
-    'For multiple_choice exercises, include exactly 4 plausible options.',
-    'For multiple_choice exercises, set correctOptionIndex to the zero-based index of the correct option.',
-    'For non-multiple_choice exercises, set options to null and correctOptionIndex to null.',
-    'Vary the exercise types between multiple choice, short answer, applied task, and reflection when appropriate.',
+    'Each exercise must include exactly 4 plausible options.',
+    'Set correctOptionIndex to the zero-based index of the correct option.',
+    'Make distractors realistic, distinct, and not tricky.',
+    'answerGuidance should explain why the correct answer is right and why the distractors do not fit.',
   ].join(' ');
 }
 
@@ -97,6 +98,7 @@ function buildUserPrompt(input: {
   courseTitle: string;
   courseGoal: string;
   level: string | null;
+  courseLanguage: string;
   moduleTitle: string;
   moduleDescription: string | null;
   lessonTitle: string;
@@ -107,11 +109,13 @@ function buildUserPrompt(input: {
 }) {
   const existingTitles =
     input.existingExerciseTitles.length > 0 ? input.existingExerciseTitles.join(' | ') : 'None yet';
+  const promptLanguage = getCourseLanguagePromptLabel(input.courseLanguage);
 
   return [
     `Course title: ${input.courseTitle}`,
     `Course goal: ${input.courseGoal}`,
     `Course level: ${input.level ?? 'Not specified'}`,
+    `Write every exercise in: ${promptLanguage}`,
     `Module title: ${input.moduleTitle}`,
     `Module description: ${input.moduleDescription ?? 'Not specified'}`,
     `Lesson title: ${input.lessonTitle}`,
@@ -121,9 +125,11 @@ function buildUserPrompt(input: {
     `Existing exercise titles to avoid repeating: ${existingTitles}`,
     'Generate only new exercises.',
     'Each exercise should be directly answerable by the learner without needing external material.',
-    'When using multiple_choice, make alternatives distinct and avoid trick answers.',
-    'For multiple_choice, there must be exactly one correct option.',
-    'answerGuidance should be a short hint or success criteria, not a full answer.',
+    'Every exercise must be multiple_choice.',
+    'There must be exactly one correct option in each exercise.',
+    'answerGuidance should be a concise but useful explanation in 2 to 4 sentences.',
+    'All learner-facing text must be in the requested language.',
+    'Never mix languages unless the requested language itself requires it.',
   ].join('\n');
 }
 
@@ -238,8 +244,8 @@ function normalizeExercises(input: { exercises: GeneratedPracticeExercise[] }) {
     title: exercise.title.trim(),
     instructions: exercise.instructions.trim(),
     type: exercise.type,
-    options: exercise.options?.map((option) => option.trim()) ?? null,
-    correctOptionIndex: exercise.correctOptionIndex ?? null,
+    options: exercise.options.map((option) => option.trim()),
+    correctOptionIndex: exercise.correctOptionIndex,
     answerGuidance: exercise.answerGuidance?.trim() || null,
   }));
 }
@@ -248,6 +254,7 @@ export async function generatePracticeExercises(input: {
   courseTitle: string;
   courseGoal: string;
   level: string | null;
+  courseLanguage: string;
   moduleTitle: string;
   moduleDescription: string | null;
   lessonTitle: string;

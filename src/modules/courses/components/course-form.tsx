@@ -4,14 +4,26 @@ import { AlertCircle } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { SubmitButton } from '@/components/ui/submit-button';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  courseLanguageOptions,
+  defaultCourseLanguage,
+} from '@/modules/courses/lib/course-language';
 
 type CourseFormValues = {
   title?: string | null;
   goal?: string | null;
   description?: string | null;
   level?: string | null;
+  courseLanguage?: string | null;
   estimatedWeeks?: number | null;
 };
 
@@ -30,6 +42,12 @@ export function CourseForm({
   secondaryAction,
   submitLabel,
 }: CourseFormProps) {
+  const levelOptions = [
+    { label: 'Beginner', value: 'Beginner' },
+    { label: 'Intermediate', value: 'Intermediate' },
+    { label: 'Advanced', value: 'Advanced' },
+  ] as const;
+
   return (
     <form action={action} className="space-y-6">
       {error ? (
@@ -77,25 +95,51 @@ export function CourseForm({
         <div className="grid gap-5 md:grid-cols-2">
           <div className="grid gap-2">
             <Label htmlFor="level">Level</Label>
-            <Input
-              id="level"
-              name="level"
-              defaultValue={defaultValues?.level ?? ''}
-              placeholder="Beginner"
-            />
+            <Select name="level" defaultValue={defaultValues?.level ?? 'Beginner'}>
+              <SelectTrigger id="level" className="h-10 w-full rounded-md">
+                <SelectValue placeholder="Select a level" />
+              </SelectTrigger>
+              <SelectContent>
+                {levelOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="estimatedWeeks">Estimated weeks</Label>
-            <Input
-              id="estimatedWeeks"
-              name="estimatedWeeks"
-              type="number"
-              min={1}
-              defaultValue={defaultValues?.estimatedWeeks ?? ''}
-              placeholder="6"
-            />
+            <Label htmlFor="courseLanguage">Course language</Label>
+            <Select
+              name="courseLanguage"
+              required
+              defaultValue={defaultValues?.courseLanguage ?? defaultCourseLanguage}
+            >
+              <SelectTrigger id="courseLanguage" className="h-10 w-full rounded-md">
+                <SelectValue placeholder="Select the course language" />
+              </SelectTrigger>
+              <SelectContent>
+                {courseLanguageOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+        </div>
+
+        <div className="grid gap-2 md:max-w-sm">
+          <Label htmlFor="estimatedWeeks">Estimated weeks</Label>
+          <Input
+            id="estimatedWeeks"
+            name="estimatedWeeks"
+            type="number"
+            min={1}
+            defaultValue={defaultValues?.estimatedWeeks ?? ''}
+            placeholder="6"
+          />
         </div>
       </div>
 

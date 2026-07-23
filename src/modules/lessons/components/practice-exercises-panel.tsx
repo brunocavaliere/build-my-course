@@ -19,15 +19,14 @@ type PracticeExercisesPanelProps = {
     moreDescription?: string;
     moreCta?: string;
     exercise?: string;
-    multipleChoice?: string;
-    appliedTask?: string;
-    reflection?: string;
-    shortAnswer?: string;
-    checkAnswer?: string;
+    chooseAnswer?: string;
+    revealAnswer?: string;
     correct?: string;
     incorrect?: string;
     explanation?: string;
-    answerGuidance?: string;
+    yourAnswer?: string;
+    correctOption?: string;
+    tryAgain?: string;
   };
 };
 
@@ -47,7 +46,7 @@ export function PracticeExercisesPanel({
 
       {exercises.length ? (
         <>
-          <div className="grid gap-4">
+          <div className="grid gap-8">
             {exercises.map((exercise, index) => (
               <PracticeExerciseCard
                 key={exercise.id}

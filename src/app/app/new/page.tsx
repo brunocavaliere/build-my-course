@@ -53,6 +53,8 @@ export default async function NewCoursePage({ searchParams }: NewCoursePageProps
               levelAdvanced: formT('levels.advanced'),
               levelLabel: formT('levelLabel'),
               levelPlaceholder: formT('levelPlaceholder'),
+              courseLanguageLabel: formT('courseLanguageLabel'),
+              courseLanguagePlaceholder: formT('courseLanguagePlaceholder'),
               submit: formT('submit'),
               submitting: formT('submitting'),
               weeksLabel: formT('weeksLabel'),

@@ -40,6 +40,7 @@ export default async function AppPage() {
               labels={{
                 open: cardT('open'),
                 level: cardT('level'),
+                language: cardT('language'),
               }}
             />
           ))}

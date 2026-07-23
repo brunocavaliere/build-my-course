@@ -15,10 +15,15 @@ import {
 } from '@/components/ui/select';
 import { SubmitButton } from '@/components/ui/submit-button';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  courseLanguageOptions,
+  defaultCourseLanguage,
+} from '@/modules/courses/lib/course-language';
 
 type GenerateCourseFormValues = {
   goal?: string | null;
   level?: string | null;
+  courseLanguage?: string | null;
   estimatedWeeks?: number | null;
 };
 
@@ -34,6 +39,8 @@ type GenerateCourseFormProps = {
     levelAdvanced?: string;
     levelLabel?: string;
     levelPlaceholder?: string;
+    courseLanguageLabel?: string;
+    courseLanguagePlaceholder?: string;
     submit?: string;
     submitting?: string;
     weeksLabel?: string;
@@ -96,6 +103,32 @@ export function GenerateCourseForm({
             </Select>
           </div>
 
+          <div className="grid gap-2">
+            <Label htmlFor="courseLanguage">
+              {labels?.courseLanguageLabel ?? 'Course language'}
+            </Label>
+            <Select
+              name="courseLanguage"
+              required
+              defaultValue={defaultValues?.courseLanguage ?? defaultCourseLanguage}
+            >
+              <SelectTrigger id="courseLanguage" className="h-10 w-full rounded-md">
+                <SelectValue
+                  placeholder={labels?.courseLanguagePlaceholder ?? 'Select the course language'}
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {courseLanguageOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="grid gap-5 md:grid-cols-2">
           <div className="grid gap-2">
             <Label htmlFor="estimatedWeeks">{labels?.weeksLabel ?? 'Estimated weeks'}</Label>
             <Input
